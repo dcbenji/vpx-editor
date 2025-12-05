@@ -1,0 +1,118 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-dark: #1e1e1e;
+  --bg-panel: #252526;
+  --bg-toolbar: #333333;
+  --border-color: #3c3c3c;
+  --text-primary: #cccccc;
+  --text-secondary: #888888;
+  --accent: #0078d4;
+  --accent-hover: #1084d8;
+  --canvas-bg: #2d2d2d;
+  --icon-filter: invert(1);
+  --tooltip-bg: #1a1a1a;
+  --tooltip-border: #444;
+  --badge-bg: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="light"] {
+  --bg-dark: #f3f3f3;
+  --bg-panel: #ffffff;
+  --bg-toolbar: #e8e8e8;
+  --border-color: #d4d4d4;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --accent: #0078d4;
+  --accent-hover: #106ebe;
+  --canvas-bg: #e0e0e0;
+  --icon-filter: invert(0);
+  --tooltip-bg: #ffffff;
+  --tooltip-border: #cccccc;
+  --badge-bg: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+::-webkit-scrollbar-corner { background: var(--bg-dark); }
+
+html, body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+  color: var(--text-primary);
+  background: var(--bg-panel);
+  overflow: hidden;
+  user-select: none;
+}
+
+input, textarea {
+  user-select: text;
+}
+
+.win-btn {
+  padding: 6px 14px;
+  background: var(--bg-toolbar);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.win-btn:hover {
+  background: var(--bg-dark);
+}
+
+.win-btn:focus {
+  outline: none;
+}
+
+.win-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.win-btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.win-btn.primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.win-input {
+  padding: 4px 8px;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 12px;
+}
+
+.win-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.win-select {
+  padding: 4px 8px;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 12px;
+}
+
+.win-select:focus {
+  outline: none;
+  border-color: var(--accent);
+}

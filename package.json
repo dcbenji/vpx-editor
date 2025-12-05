@@ -1,0 +1,43 @@
+{
+  "name": "vpx-editor",
+  "productName": "VPX Editor",
+  "version": "0.5.0",
+  "description": "Visual Pinball X Table Editor",
+  "main": ".vite/build/main.js",
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "format": "prettier --write \"src/**/*.js\" \"*.js\"",
+    "format:check": "prettier --check \"src/**/*.js\" \"*.js\"",
+    "postinstall": "node scripts/download-vpxtool.js"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Jason Millard",
+    "email": "jsm174@gmail.com"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@electron-forge/cli": "^7.10.2",
+    "@electron-forge/maker-deb": "^7.10.2",
+    "@electron-forge/maker-dmg": "^7.10.2",
+    "@electron-forge/maker-flatpak": "^7.10.2",
+    "@electron-forge/maker-rpm": "^7.10.2",
+    "@electron-forge/maker-squirrel": "^7.10.2",
+    "@electron-forge/maker-zip": "^7.10.2",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.10.2",
+    "@electron-forge/plugin-fuses": "^7.10.2",
+    "@electron-forge/plugin-vite": "^7.10.2",
+    "@electron/fuses": "^1.8.0",
+    "electron": "39.2.5",
+    "prettier": "^3.7.4",
+    "vite": "^5.4.21"
+  },
+  "dependencies": {
+    "electron-squirrel-startup": "^1.0.1",
+    "monaco-editor": "^0.55.1",
+    "three": "^0.181.2"
+  }
+}

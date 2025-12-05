@@ -1,0 +1,11 @@
+@import 'src/editor/editor.css';
+
+img {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
+[contenteditable] {
+  user-select: text;
+  -webkit-user-select: text;
+}

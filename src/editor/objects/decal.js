@@ -1,0 +1,122 @@
+import { state, elements } from '../state.js';
+import { toScreen, getLineWidth } from '../utils.js';
+import { materialOptions, imageOptions, surfaceOptions } from '../../shared/options-generators.js';
+import { DECAL_DEFAULTS } from '../../shared/object-defaults.js';
+
+export function renderDecal(item, isSelected) {
+  const center = item.center || item.vCenter;
+  if (!center) return;
+
+  const { x: cx, y: cy } = toScreen(center.x, center.y);
+  const halfW = ((item.width ?? DECAL_DEFAULTS.width) * state.zoom) / 2;
+  const halfH = ((item.height ?? DECAL_DEFAULTS.height) * state.zoom) / 2;
+  const rot = ((item.rotation ?? DECAL_DEFAULTS.rotation) * Math.PI) / 180;
+
+  const sn = Math.sin(rot);
+  const cs = Math.cos(rot);
+
+  const corners = [
+    { x: cx + sn * halfH + cs * halfW, y: cy - cs * halfH + sn * halfW },
+    { x: cx + sn * halfH - cs * halfW, y: cy - cs * halfH - sn * halfW },
+    { x: cx - sn * halfH - cs * halfW, y: cy + cs * halfH - sn * halfW },
+    { x: cx - sn * halfH + cs * halfW, y: cy + cs * halfH + sn * halfW },
+  ];
+
+  elements.ctx.lineWidth = getLineWidth(isSelected);
+
+  elements.ctx.beginPath();
+  elements.ctx.moveTo(corners[0].x, corners[0].y);
+  for (let i = 1; i < corners.length; i++) {
+    elements.ctx.lineTo(corners[i].x, corners[i].y);
+  }
+  elements.ctx.closePath();
+
+  if (state.viewSolid) {
+    elements.ctx.fillStyle = 'rgb(0, 0, 255)';
+    elements.ctx.fill();
+  }
+
+  elements.ctx.strokeStyle = isSelected ? '#0000ff' : '#000000';
+  elements.ctx.lineWidth = isSelected ? 4 : getLineWidth(isSelected);
+  elements.ctx.stroke();
+}
+
+export function decalProperties(item) {
+  const center = item.center || item.vCenter || { x: 0, y: 0 };
+  return `
+    <div class="prop-tabs">
+      <button class="prop-tab active" data-tab="visuals">Visuals</button>
+    </div>
+
+    <div class="prop-tab-content active" data-tab="visuals">
+      <div class="prop-group">
+        <div class="prop-row">
+          <label class="prop-label">Material</label>
+          <select class="prop-select" data-prop="material">${materialOptions(item.material)}</select>
+        </div>
+        <div class="prop-row">
+          <label class="prop-label">Type</label>
+          <select class="prop-select" data-prop="decal_type">
+            <option value="image"${(item.decal_type || 'image') === 'image' ? ' selected' : ''}>Image</option>
+            <option value="text"${item.decal_type === 'text' ? ' selected' : ''}>Text</option>
+          </select>
+        </div>
+        <div class="prop-row">
+          <label class="prop-label">Text</label>
+          <input type="text" class="prop-input" data-prop="text" value="${item.text || ''}">
+        </div>
+        <div class="prop-row">
+          <label class="prop-label">Vertical Text</label>
+          <input type="checkbox" class="prop-input" data-prop="vertical_text" ${item.vertical_text ? 'checked' : ''}>
+        </div>
+        <div class="prop-row">
+          <label class="prop-label">Font Color</label>
+          <input type="color" class="prop-input" data-prop="color" value="${item.color || '#ffffff'}">
+        </div>
+        <div class="prop-row">
+          <label class="prop-label">Font</label>
+          <input type="text" class="prop-input" value="${item.font?.name || 'Arial'}" readonly style="background: transparent; cursor: default;">
+        </div>
+        <div class="prop-row">
+          <label class="prop-label">Image</label>
+          <select class="prop-select" data-prop="image">${imageOptions(item.image)}</select>
+        </div>
+        <div class="prop-row">
+          <label class="prop-label">Sizing</label>
+          <select class="prop-select" data-prop="sizing_type">
+            <option value="auto_size"${item.sizing_type === 'auto_size' ? ' selected' : ''}>Auto Size</option>
+            <option value="auto_width"${item.sizing_type === 'auto_width' ? ' selected' : ''}>Auto Width</option>
+            <option value="manual_size"${(item.sizing_type || 'manual_size') === 'manual_size' ? ' selected' : ''}>Manual Size</option>
+          </select>
+        </div>
+      </div>
+      <div class="prop-group">
+        <div class="prop-group-title">Position</div>
+        <div class="prop-row">
+          <label class="prop-label">X</label>
+          <input type="number" class="prop-input" data-prop="center.x" value="${center.x.toFixed(1)}" step="1">
+        </div>
+        <div class="prop-row">
+          <label class="prop-label">Y</label>
+          <input type="number" class="prop-input" data-prop="center.y" value="${center.y.toFixed(1)}" step="1">
+        </div>
+        <div class="prop-row">
+          <label class="prop-label">Width</label>
+          <input type="number" class="prop-input" data-prop="width" value="${(item.width ?? DECAL_DEFAULTS.width).toFixed(1)}" step="5">
+        </div>
+        <div class="prop-row">
+          <label class="prop-label">Height</label>
+          <input type="number" class="prop-input" data-prop="height" value="${(item.height ?? DECAL_DEFAULTS.height).toFixed(1)}" step="5">
+        </div>
+        <div class="prop-row">
+          <label class="prop-label">Rotation</label>
+          <input type="number" class="prop-input" data-prop="rotation" value="${(item.rotation ?? DECAL_DEFAULTS.rotation).toFixed(1)}" step="5">
+        </div>
+        <div class="prop-row">
+          <label class="prop-label">Surface</label>
+          <select class="prop-select" data-prop="surface">${surfaceOptions(item.surface)}</select>
+        </div>
+      </div>
+    </div>
+  `;
+}

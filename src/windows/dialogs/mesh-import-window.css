@@ -1,0 +1,64 @@
+.mesh-import-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px;
+}
+
+.mesh-import-file-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.mesh-import-file-row label {
+  flex-shrink: 0;
+  font-size: 13px;
+}
+
+.mesh-import-file-row .win-input {
+  flex: 1;
+}
+
+.mesh-import-options {
+  border: 1px solid var(--border-color);
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  flex: 1;
+}
+
+.mesh-import-options legend {
+  padding: 0 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.mesh-import-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+}
+
+.mesh-import-grid label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.mesh-import-grid label.full-width {
+  grid-column: 1 / -1;
+}
+
+.mesh-import-grid input[type="checkbox"],
+.mesh-import-grid input[type="radio"] {
+  margin: 0;
+}
+
+.mesh-import-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
