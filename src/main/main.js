@@ -38,6 +38,9 @@ import {
 import { createMenu as createMenuImpl, insertItem as insertItemImpl } from './menu/menu-setup.js';
 import { createWindowFactory } from './window-factory.js';
 import * as vpxOps from './vpx/vpx-operations.js';
+import { updateElectronApp } from 'update-electron-app';
+
+updateElectronApp();
 
 const windowRegistry = new WindowRegistry();
 

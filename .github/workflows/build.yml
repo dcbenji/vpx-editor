@@ -77,12 +77,20 @@ jobs:
         run: |
           mkdir -p tmp
           cp out/make/*.dmg tmp/vpx-editor-macos-arm64-${{ needs.version.outputs.tag }}.dmg
+          cp out/make/zip/darwin/arm64/*.zip tmp/vpx-editor-macos-arm64-${{ needs.version.outputs.tag }}.zip
 
       - name: Upload macOS DMG
         uses: actions/upload-artifact@v4
         with:
-          name: vpx-editor-macos-arm64-${{ needs.version.outputs.tag }}
+          name: vpx-editor-macos-arm64-${{ needs.version.outputs.tag }}.dmg
           path: tmp/*.dmg
+          if-no-files-found: error
+
+      - name: Upload macOS ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: vpx-editor-macos-arm64-${{ needs.version.outputs.tag }}.zip
+          path: tmp/*.zip
           if-no-files-found: error
 
   build-linux:
@@ -181,10 +189,18 @@ jobs:
         run: |
           mkdir -p tmp
           cp out/make/squirrel.windows/x64/*.exe tmp/vpx-editor-windows-x64-${{ needs.version.outputs.tag }}-setup.exe
+          cp out/make/zip/win32/x64/*.zip tmp/vpx-editor-windows-x64-${{ needs.version.outputs.tag }}.zip
 
       - name: Upload Windows installer
         uses: actions/upload-artifact@v4
         with:
-          name: vpx-editor-windows-x64-${{ needs.version.outputs.tag }}
+          name: vpx-editor-windows-x64-${{ needs.version.outputs.tag }}.exe
           path: tmp/*.exe
+          if-no-files-found: error
+
+      - name: Upload Windows ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: vpx-editor-windows-x64-${{ needs.version.outputs.tag }}.zip
+          path: tmp/*.zip
           if-no-files-found: error
