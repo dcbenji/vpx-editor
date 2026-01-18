@@ -301,6 +301,25 @@ function createActionHandler(
         }
       };
 
+    case 'export-blueprint':
+      return async () => {
+        const ctx = windowRegistry.getFocused();
+        if (!ctx) return;
+        const { dialog } = await import('electron');
+        const result = await dialog.showMessageBox(ctx.window, {
+          type: 'question',
+          title: 'Export Blueprint',
+          message: 'Do you want a solid blueprint (filled shapes) or outline only?',
+          buttons: ['Solid', 'Outline', 'Cancel'],
+          defaultId: 0,
+          cancelId: 2,
+        });
+        if (result.response === 2) return;
+        const solid = result.response === 0;
+        const isBackglass = ctx.backglassViewEnabled ?? false;
+        ctx.window.webContents.send('export-blueprint', { solid, isBackglass });
+      };
+
     default:
       return undefined;
   }

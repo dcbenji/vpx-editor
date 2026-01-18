@@ -131,9 +131,8 @@ export const menuSchema: MenuItemSchema[] = [
         action: 'export-blueprint',
         requires: ['hasTable'],
         disabledWhen: ['dialogOpen'],
-        webOnly: true,
       },
-      { id: 'file-sep-4', type: 'separator', webOnly: true },
+      { id: 'file-sep-4', type: 'separator' },
       {
         id: 'close',
         label: 'Close',

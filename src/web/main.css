@@ -105,6 +105,8 @@
   justify-content: space-between;
   padding: 12px 16px;
   border-bottom: 1px solid var(--border-color);
+  background: var(--bg-toolbar);
+  border-radius: 8px 8px 0 0;
 }
 .blueprint-modal-title { font-weight: 600; font-size: 14px; }
 .blueprint-modal-body {
@@ -114,10 +116,12 @@
 }
 .blueprint-modal-footer {
   padding: 12px 16px;
-  border-top: 1px solid var(--border-color);
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
   gap: 8px;
+}
+.blueprint-modal-footer .win-btn {
+  width: 100%;
 }
 
 .prop-group {
