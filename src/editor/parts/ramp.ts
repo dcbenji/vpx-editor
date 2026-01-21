@@ -158,11 +158,11 @@ export function createRamp3DMesh(item: RampItem): THREE.Group | null {
     } else if (rampType === 'three_wire_left') {
       addWire(createWirePath(wireDistanceX / 2));
       addWire(createWirePath(-wireDistanceX / 2));
-      addWire(createWirePath(-wireDistanceX / 2, wireDistanceY / 2));
+      addWire(createWirePath(wireDistanceX / 2, wireDistanceY / 2));
     } else if (rampType === 'three_wire_right') {
       addWire(createWirePath(wireDistanceX / 2));
       addWire(createWirePath(-wireDistanceX / 2));
-      addWire(createWirePath(wireDistanceX / 2, wireDistanceY / 2));
+      addWire(createWirePath(-wireDistanceX / 2, wireDistanceY / 2));
     } else if (rampType === 'four_wire') {
       addWire(createWirePath(wireDistanceX / 2));
       addWire(createWirePath(-wireDistanceX / 2));
@@ -417,7 +417,7 @@ function drawRampShape(
     }
     ctx.stroke();
 
-    if (isFourWire || isThreeWireLeft) {
+    if (isFourWire || isThreeWireRight) {
       ctx.strokeStyle = RENDER_COLOR_BLACK;
       ctx.lineWidth = 3;
       ctx.beginPath();
@@ -428,7 +428,7 @@ function drawRampShape(
       }
       ctx.stroke();
     }
-    if (isFourWire || isThreeWireRight) {
+    if (isFourWire || isThreeWireLeft) {
       ctx.strokeStyle = RENDER_COLOR_BLACK;
       ctx.lineWidth = 3;
       ctx.beginPath();
