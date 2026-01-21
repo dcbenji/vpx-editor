@@ -111,9 +111,9 @@ function tableProperties(gamedata: GameData): string {
   return `
     <div class="prop-header-sticky">
       <div class="prop-row">
-        <label class="prop-label">Name</label>
+        <label class="prop-label">Name:</label>
         <img src="icons/${lockIcon}.png" class="prop-lock-icon prop-lock-icon-clickable" id="lock-table-icon" alt="${lockLabel}" title="Click to ${lockLabel.toLowerCase()}">
-        <input type="text" class="prop-input" data-prop="name" value="${gamedata.name || 'Table1'}" readonly style="background: transparent; border-color: transparent; flex: 1;">
+        <span class="prop-name-display" title="${gamedata.name || 'Table1'}">${gamedata.name || 'Table1'}</span>
         <button class="rename-btn" id="rename-table-btn">Rename</button>
       </div>
     </div>
@@ -404,9 +404,9 @@ function backglassProperties(gamedata: GameData): string {
   return `
     <div class="prop-header-sticky">
       <div class="prop-row">
-        <label class="prop-label">Name</label>
+        <label class="prop-label">Name:</label>
         <img src="icons/${lockIcon}.png" class="prop-lock-icon prop-lock-icon-clickable" id="lock-table-icon" alt="${lockLabel}" title="Click to ${lockLabel.toLowerCase()}">
-        <input type="text" class="prop-input" data-prop="name" value="${gamedata.name || 'Table1'}" readonly style="background: transparent; border-color: transparent; flex: 1;">
+        <span class="prop-name-display" title="${gamedata.name || 'Table1'}">${gamedata.name || 'Table1'}</span>
         <button class="rename-btn" id="rename-table-btn">Rename</button>
       </div>
     </div>
@@ -529,8 +529,8 @@ export function updatePropertiesPanel(resetTab: boolean = false): void {
       let html = `
         <div class="prop-header-sticky">
           <div class="prop-row">
-            <label class="prop-label">Name</label>
-            <span class="prop-value">${state.selectedPartGroup}</span>
+            <label class="prop-label">Name:</label>
+            <span class="prop-name-display" title="${state.selectedPartGroup}">${state.selectedPartGroup}</span>
           </div>
         </div>
       `;
@@ -712,9 +712,9 @@ export function updatePropertiesPanel(resetTab: boolean = false): void {
   let html = `
     <div class="prop-header-sticky">
       <div class="prop-row">
-        <label class="prop-label">Name</label>
+        <label class="prop-label">Name:</label>
         <img src="icons/${isLocked ? 'locked' : 'unlocked'}.png" class="prop-lock-icon${canToggleLock ? ' prop-lock-icon-clickable' : ''}" id="lock-object-icon" alt="${isLocked ? 'Locked' : 'Unlocked'}" title="${canToggleLock ? `Click to ${lockLabel.toLowerCase()}` : 'Table is locked'}">
-        <input type="text" class="prop-input" data-prop="name" value="${nameValue}" readonly style="background: transparent; border-color: transparent; flex: 1;">
+        <span class="prop-name-display" title="${nameValue}">${nameValue}</span>
         <button class="rename-btn" id="rename-object-btn"${isLocked || isMultiSelect ? ' disabled' : ''}>Rename</button>
       </div>
     </div>

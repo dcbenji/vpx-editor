@@ -217,6 +217,34 @@
   border-bottom: 1px solid var(--border-color);
 }
 
+.prop-header-sticky .prop-row {
+  gap: 6px;
+}
+
+.prop-header-sticky .prop-label {
+  width: auto;
+  padding-right: 0;
+  flex-shrink: 0;
+}
+
+.prop-header-sticky .prop-name-display {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+.prop-header-sticky .rename-btn {
+  flex-shrink: 0;
+}
+
+.prop-header-sticky .prop-lock-icon {
+  flex-shrink: 0;
+}
+
 .prop-header-sticky + .prop-tabs,
 .prop-header-sticky + .prop-group .prop-tabs {
   top: 32px;
