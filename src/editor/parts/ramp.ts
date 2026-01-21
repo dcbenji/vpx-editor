@@ -417,7 +417,7 @@ function drawRampShape(
     }
     ctx.stroke();
 
-    if (isFourWire || isThreeWireRight) {
+    if (isFourWire || isThreeWireLeft) {
       ctx.strokeStyle = RENDER_COLOR_BLACK;
       ctx.lineWidth = 3;
       ctx.beginPath();
@@ -428,7 +428,7 @@ function drawRampShape(
       }
       ctx.stroke();
     }
-    if (isFourWire || isThreeWireLeft) {
+    if (isFourWire || isThreeWireRight) {
       ctx.strokeStyle = RENDER_COLOR_BLACK;
       ctx.lineWidth = 3;
       ctx.beginPath();
