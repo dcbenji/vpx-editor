@@ -1142,7 +1142,18 @@ function setupDrawingOrderModal(): void {
 }
 
 async function init(): Promise<void> {
-  state.platform = await createPlatform();
+  try {
+    state.platform = await createPlatform();
+  } catch (e) {
+    const { appendConsoleLine, showConsole } = await import('../editor/console-panel.js');
+    showConsole();
+    appendConsoleLine(
+      'Storage access denied. This may occur in private browsing mode. File operations will not work.',
+      'error'
+    );
+    console.error('Platform initialization failed:', e);
+    return;
+  }
   enhanceApi();
 
   const settings = (await state.platform!.storage.get<EditorSettings>('editorSettings')) || {};
