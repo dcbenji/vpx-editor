@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { state, elements } from '../state.js';
 import { toScreen, getStrokeStyle, getLineWidth, distToSegment } from '../utils.js';
-import { createMaterial } from '../../shared/3d-material-helpers.js';
+import { createMaterial, getSurfaceHeight } from '../../shared/3d-material-helpers.js';
 import { materialOptions, imageOptions, surfaceOptions } from '../../shared/options-generators.js';
 import { FLIPPER_DEFAULTS } from '../../shared/object-defaults.js';
 import { RENDER_COLOR_BLACK, RENDER_COLOR_GRAY } from '../../shared/constants.js';
@@ -173,7 +173,7 @@ export function createFlipper3DMesh(item: FlipperItem): THREE.Group | null {
   }
 
   group.rotation.z = startAngle;
-  group.position.set(center.x, center.y, 0);
+  group.position.set(center.x, center.y, getSurfaceHeight(item.surface));
   return group;
 }
 

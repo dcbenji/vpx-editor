@@ -43,6 +43,7 @@ class UndoManager {
   enabled: boolean;
   onChangeCallback: OnChangeCallback | null;
   savePointIndex: number;
+  isProcessing: boolean;
 
   constructor() {
     this.undoStack = [];
@@ -53,6 +54,7 @@ class UndoManager {
     this.enabled = true;
     this.onChangeCallback = null;
     this.savePointIndex = 0;
+    this.isProcessing = false;
   }
 
   setOnChange(callback: OnChangeCallback): void {
@@ -325,8 +327,9 @@ class UndoManager {
   }
 
   async undo(): Promise<UndoRedoResult | false> {
-    if (!this.canUndo()) return false;
+    if (!this.canUndo() || this.isProcessing) return false;
 
+    this.isProcessing = true;
     this.enabled = false;
     const record = this.undoStack.pop()!;
 
@@ -504,11 +507,14 @@ class UndoManager {
       return { success: false };
     } finally {
       this.enabled = true;
+      this.isProcessing = false;
     }
   }
 
   async redo(): Promise<UndoRedoResult | false> {
-    if (!this.canRedo()) return false;
+    if (!this.canRedo() || this.isProcessing) return false;
+
+    this.isProcessing = true;
 
     this.enabled = false;
     const record = this.redoStack.pop()!;
@@ -650,6 +656,7 @@ class UndoManager {
       return { success: false };
     } finally {
       this.enabled = true;
+      this.isProcessing = false;
     }
   }
 

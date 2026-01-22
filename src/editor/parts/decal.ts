@@ -6,7 +6,7 @@ import { DECAL_DEFAULTS } from '../../shared/object-defaults.js';
 import { RENDER_COLOR_BLACK, RENDER_COLOR_BLUE, BLUEPRINT_SOLID_COLOR } from '../../shared/constants.js';
 import { registerEditable, IEditable } from './registry.js';
 import { loadTexture } from '../texture-loader.js';
-import { createMaterial } from '../../shared/3d-material-helpers.js';
+import { createMaterial, getSurfaceHeight } from '../../shared/3d-material-helpers.js';
 import type { Decal, Point } from '../../types/game-objects.js';
 
 interface Corner {
@@ -99,7 +99,7 @@ export function createDecal3DMesh(item: Decal): THREE.Mesh | null {
   }
 
   const mesh = new THREE.Mesh(geometry, material);
-  mesh.position.set(center.x, center.y, 0.2);
+  mesh.position.set(center.x, center.y, getSurfaceHeight(item.surface) + 0.2);
   mesh.rotation.z = -rotation;
 
   return mesh;

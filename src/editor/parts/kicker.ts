@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { state, elements } from '../state.js';
 import { toScreen, getStrokeStyle, getLineWidth } from '../utils.js';
-import { createMaterialWithTexture } from '../../shared/3d-material-helpers.js';
+import { createMaterialWithTexture, getSurfaceHeight } from '../../shared/3d-material-helpers.js';
 import { materialOptions, surfaceOptions } from '../../shared/options-generators.js';
 import { KICKER_DEFAULTS } from '../../shared/object-defaults.js';
 import { createMeshGeometry } from '../../shared/mesh-utils.js';
@@ -43,6 +43,7 @@ export function createKicker3DMesh(item: unknown): THREE.Object3D | null {
     radius?: number;
     orientation?: number;
     material?: string;
+    surface?: string;
   };
 
   const center = kickerItem.center;
@@ -92,7 +93,7 @@ export function createKicker3DMesh(item: unknown): THREE.Object3D | null {
   const geometry = createMeshGeometry(meshData, { scale: radius, rotation: orientation, offsetZ: zOffset * radius });
   const material = createMaterialWithTexture(kickerItem.material, null, textureName);
   const mesh = new THREE.Mesh(geometry, material);
-  mesh.position.set(center.x, center.y, 0.5);
+  mesh.position.set(center.x, center.y, getSurfaceHeight(kickerItem.surface));
 
   return mesh;
 }

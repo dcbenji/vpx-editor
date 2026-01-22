@@ -20,7 +20,7 @@ export function imageOptions(currentValue: string | null | undefined): string {
 function getItemNamesByType(...types: string[]): string[] {
   return Object.entries(state.items)
     .filter(([, item]) => types.includes(item._type))
-    .map(([name]) => name)
+    .map(([, item]) => item.name as string)
     .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
 }
 

@@ -16,7 +16,7 @@ import { convertFromUnit, convertToUnit, getUnitSuffixHtml } from './utils.js';
 import { getCollectionNameForItem, renameItemInAllCollections, saveCollections } from './collections.js';
 import { render } from './canvas-renderer.js';
 import { refresh3DScene, render3D, is3DInitialized, invalidateItem } from './canvas-renderer-3d.js';
-import { loadBackdropImage } from './table-loader.js';
+import { loadBackdropImage, saveItemToFile } from './table-loader.js';
 import { objectTypeLabels } from './toolbar-init.js';
 import { selectItem, updateItemsList } from './items-panel.js';
 import { updateLayersList } from './layers-panel.js';
@@ -1531,6 +1531,43 @@ export function showRenameModal(itemName: string, elementType?: string): void {
   });
 }
 
+const REFERENCE_PROPERTIES: Record<string, string[]> = {
+  Wall: ['surface'],
+  Light: ['light_map'],
+};
+
+async function updateItemReferences(itemType: string, oldName: string, newName: string): Promise<string[]> {
+  const propsToCheck = REFERENCE_PROPERTIES[itemType];
+  if (!propsToCheck) return [];
+
+  const updatedItems: string[] = [];
+  const oldNameLower = oldName.toLowerCase();
+
+  for (const [, item] of Object.entries(state.items)) {
+    let willUpdate = false;
+    for (const prop of propsToCheck) {
+      const value = (item as Record<string, unknown>)[prop];
+      if (typeof value === 'string' && value.toLowerCase() === oldNameLower) {
+        willUpdate = true;
+        break;
+      }
+    }
+    if (willUpdate && item.name) {
+      undoManager.markForUndo(item.name as string);
+      for (const prop of propsToCheck) {
+        const value = (item as Record<string, unknown>)[prop];
+        if (typeof value === 'string' && value.toLowerCase() === oldNameLower) {
+          (item as Record<string, unknown>)[prop] = newName;
+        }
+      }
+      updatedItems.push(item.name as string);
+      await saveItemToFile(item.name as string);
+    }
+  }
+
+  return updatedItems;
+}
+
 export async function renameObject(oldName: string, newName: string): Promise<void> {
   const item = getItem(oldName);
   if (!item) {
@@ -1598,6 +1635,8 @@ export async function renameObject(oldName: string, newName: string): Promise<vo
     undoManager.markCollectionsForUndo();
     await saveCollections();
   }
+
+  await updateItemReferences(type, oldName, newName);
 
   undoManager.endUndo();
   state.primarySelectedItem = newName;

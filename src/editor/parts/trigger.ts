@@ -8,7 +8,7 @@ import {
   getFillColorWithAlpha,
   pointInPolygon,
 } from '../utils.js';
-import { createMaterial } from '../../shared/3d-material-helpers.js';
+import { createMaterial, getSurfaceHeight } from '../../shared/3d-material-helpers.js';
 import { materialOptions, surfaceOptions } from '../../shared/options-generators.js';
 import { TRIGGER_DEFAULTS } from '../../shared/object-defaults.js';
 import { createMeshGeometry } from '../../shared/mesh-utils.js';
@@ -104,7 +104,7 @@ export function createTrigger3DMesh(item: TriggerItem): THREE.Mesh | null {
   const geometry = createMeshGeometry(meshData, { scaleX: sx, scaleY: sy, scaleZ: sz, rotation });
   const material = createMaterial(item.material, null);
   const mesh = new THREE.Mesh(geometry, material);
-  mesh.position.set(center.x, center.y, 0.5);
+  mesh.position.set(center.x, center.y, getSurfaceHeight(item.surface));
 
   return mesh;
 }

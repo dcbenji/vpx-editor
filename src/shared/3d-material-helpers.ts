@@ -1,7 +1,14 @@
 import * as THREE from 'three';
-import { state } from '../editor/state.js';
+import { state, getItem } from '../editor/state.js';
 import { createMaterialFromVPX, loadBuiltinTexture } from '../editor/texture-loader.js';
 import { DEFAULT_MATERIAL_COLOR } from './constants.js';
+
+export function getSurfaceHeight(surfaceName: string | undefined): number {
+  if (!surfaceName) return 0;
+  const wall = getItem(surfaceName);
+  if (!wall || wall._type !== 'Wall') return 0;
+  return (wall as { height_top?: number }).height_top ?? 0;
+}
 
 function getDefaultMaterialColor(): string {
   return state.editorColors?.defaultMaterial || DEFAULT_MATERIAL_COLOR;

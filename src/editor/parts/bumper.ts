@@ -3,7 +3,7 @@ import { state, elements } from '../state.js';
 import { toScreen, getStrokeStyle, getLineWidth } from '../utils.js';
 import { materialOptions, surfaceOptions } from '../../shared/options-generators.js';
 import { createMeshGeometry } from '../../shared/mesh-utils.js';
-import { createMaterialWithTexture } from '../../shared/3d-material-helpers.js';
+import { createMaterialWithTexture, getSurfaceHeight } from '../../shared/3d-material-helpers.js';
 import { BUMPER_DEFAULTS } from '../../shared/object-defaults.js';
 import {
   numberInput,
@@ -92,7 +92,7 @@ export function createBumper3DMesh(item: Bumper): THREE.Group | null {
     group.add(new THREE.Mesh(geom, mat));
   }
 
-  group.position.set(center.x, center.y, 0.5);
+  group.position.set(center.x, center.y, getSurfaceHeight(item.surface));
   return group;
 }
 

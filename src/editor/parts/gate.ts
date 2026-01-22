@@ -3,7 +3,7 @@ import { state, elements } from '../state.js';
 import { toScreen, getStrokeStyle, getLineWidth } from '../utils.js';
 import { materialOptions, surfaceOptions } from '../../shared/options-generators.js';
 import { createMeshGeometry } from '../../shared/mesh-utils.js';
-import { createMaterial } from '../../shared/3d-material-helpers.js';
+import { createMaterial, getSurfaceHeight } from '../../shared/3d-material-helpers.js';
 import { GATE_DEFAULTS } from '../../shared/object-defaults.js';
 import {
   numberInput,
@@ -97,7 +97,7 @@ export function createGate3DMesh(item: GateItem): THREE.Group | null {
   const wireMat = createMaterial(item.material, null);
   group.add(new THREE.Mesh(wireGeom, wireMat));
 
-  group.position.set(center.x, center.y, 0.5);
+  group.position.set(center.x, center.y, getSurfaceHeight(item.surface));
   return group;
 }
 

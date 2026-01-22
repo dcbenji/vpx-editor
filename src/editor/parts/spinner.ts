@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { state, elements } from '../state.js';
 import { toScreen, getStrokeStyle } from '../utils.js';
-import { createMaterial } from '../../shared/3d-material-helpers.js';
+import { createMaterial, getSurfaceHeight } from '../../shared/3d-material-helpers.js';
 import { materialOptions, imageOptions, surfaceOptions } from '../../shared/options-generators.js';
 import { createMeshGeometry } from '../../shared/mesh-utils.js';
 import { SPINNER_DEFAULTS } from '../../shared/object-defaults.js';
@@ -68,7 +68,7 @@ export function createSpinner3DMesh(item: SpinnerItem): THREE.Group | null {
   const plateMat = createMaterial(item.material, item.image);
   group.add(new THREE.Mesh(plateGeom, plateMat));
 
-  group.position.set(center.x, center.y, 0.5);
+  group.position.set(center.x, center.y, getSurfaceHeight(item.surface));
   return group;
 }
 

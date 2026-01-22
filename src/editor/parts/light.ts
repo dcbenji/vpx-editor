@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { state, elements } from '../state.js';
 import { toScreen, generateSmoothedPath, pointInPolygon } from '../utils.js';
-import { createMaterial } from '../../shared/3d-material-helpers.js';
+import { createMaterial, getSurfaceHeight } from '../../shared/3d-material-helpers.js';
 import { imageOptions, surfaceOptions } from '../../shared/options-generators.js';
 import { createMeshGeometry } from '../../shared/mesh-utils.js';
 import { LIGHT_DEFAULTS } from '../../shared/object-defaults.js';
@@ -37,13 +37,15 @@ export function createLight3DMesh(item: unknown): THREE.Object3D | null {
     intensity?: number;
     mesh_radius?: number;
     socket_material?: string;
+    surface?: string;
   };
 
   const center = lightItem.center || lightItem.vCenter;
   if (!center) return null;
 
   const color = lightItem.color || LIGHT_DEFAULTS.color;
-  const baseHeight = lightItem.height ?? 0;
+  const surfaceHeight = getSurfaceHeight(lightItem.surface);
+  const baseHeight = (lightItem.height ?? 0) + surfaceHeight;
 
   if (lightItem.is_bulb_light && !lightItem.show_bulb_mesh) {
     return null;
