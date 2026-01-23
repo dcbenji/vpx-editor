@@ -1707,6 +1707,7 @@ ipcMain.handle(
 
       await fs.promises.writeFile(gamedataPath, JSON.stringify(gamedata, null, 2));
 
+      ctx.window.webContents.send('gamedata-changed', gamedata);
       ctx.hasExternalChanges = true;
       ctx.markDirty();
       return { success: true };
