@@ -12,6 +12,9 @@ on:
         required: false
         default: ''
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: write
 
@@ -27,14 +30,28 @@ jobs:
         id: version
         run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
+      - name: Find build run
+        id: find-run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -n "${{ inputs.sha }}" ]; then
+            RUN_ID=$(gh run list --workflow=build.yml --status=success --commit=${{ inputs.sha }} --limit=1 --json databaseId -q '.[0].databaseId')
+          elif [ -n "${{ inputs.branch }}" ]; then
+            RUN_ID=$(gh run list --workflow=build.yml --status=success --branch=${{ inputs.branch }} --limit=1 --json databaseId -q '.[0].databaseId')
+          else
+            RUN_ID=$(gh run list --workflow=build.yml --status=success --limit=1 --json databaseId -q '.[0].databaseId')
+          fi
+          echo "run_id=${RUN_ID}" >> $GITHUB_OUTPUT
+
       - name: Download artifacts from build workflow
-        uses: dawidd6/action-download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
-          workflow: build.yml
-          workflow_conclusion: success
-          branch: ${{ inputs.branch || '' }}
-          commit: ${{ inputs.sha || '' }}
           path: artifacts
+          pattern: vpx-editor-*
+          run-id: ${{ steps.find-run.outputs.run_id }}
+          github-token: ${{ github.token }}
+          skip-decompress: true
 
       - name: Flatten artifacts
         run: |
