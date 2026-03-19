@@ -177,6 +177,7 @@ function getStyleOptions(mode: string, selectedStyle: number | undefined): strin
   const styles: Record<string, string[]> = {
     dmd: ['Legacy VPX', 'Neon Plasma', 'Red LED', 'Green LED', 'Yellow LED', 'Generic Plasma', 'Generic LED'],
     display: ['Pixelated', 'Smoothed', 'CRT'],
+    ext_render: ['Backglass', 'Score View', 'Topper'],
     alpha_seg: (() => {
       const families = ['Generic', 'Gottlieb', 'Williams', 'Bally', 'Atari'];
       const types = [
@@ -199,8 +200,12 @@ function getStyleOptions(mode: string, selectedStyle: number | undefined): strin
     })(),
   };
   const opts = styles[mode] || [];
+  const offset = mode === 'ext_render' ? 1 : 0;
   return opts
-    .map((label, i) => `<option value="${i}"${(selectedStyle ?? 0) === i ? ' selected' : ''}>${label}</option>`)
+    .map((label, i) => {
+      const value = i + offset;
+      return `<option value="${value}"${(selectedStyle ?? offset) === value ? ' selected' : ''}>${label}</option>`;
+    })
     .join('');
 }
 
@@ -208,14 +213,17 @@ export function flasherProperties(item: Flasher): string {
   const mode = item.render_mode || 'flasher';
   const isFlasher = mode === 'flasher';
   const isAlphaSeg = mode === 'alpha_seg';
-  const isDisplay = !isFlasher;
+  const isExtRender = mode === 'ext_render';
+  const isDisplay = !isFlasher && !isExtRender;
   const groupTitle = isFlasher
     ? 'Images'
-    : mode === 'dmd'
-      ? 'DMD Style'
-      : mode === 'display'
-        ? 'Display Style'
-        : 'Alpha Seg. Style';
+    : isExtRender
+      ? 'External Renderer'
+      : mode === 'dmd'
+        ? 'DMD Style'
+        : mode === 'display'
+          ? 'Display Style'
+          : 'Alpha Seg. Style';
   const opacityLabel = isFlasher ? 'Opacity' : 'Brightness';
 
   return `
@@ -233,9 +241,10 @@ export function flasherProperties(item: Flasher): string {
             <option value="dmd"${mode === 'dmd' ? ' selected' : ''}>DMD</option>
             <option value="display"${mode === 'display' ? ' selected' : ''}>Display</option>
             <option value="alpha_seg"${mode === 'alpha_seg' ? ' selected' : ''}>Alpha.Seg.</option>
+            <option value="ext_render"${mode === 'ext_render' ? ' selected' : ''}>External Renderer</option>
           </select>
         </div>
-        <div class="prop-row">
+        <div class="prop-row" style="${isExtRender ? 'display:none' : ''}">
           <label class="prop-label">Color</label>
           <input type="color" class="prop-input" data-prop="color" value="${item.color || '#ffffff'}">
         </div>
@@ -250,7 +259,7 @@ export function flasherProperties(item: Flasher): string {
       </div>
       <div class="prop-group">
         <div class="prop-group-title">${groupTitle}</div>
-        <div class="prop-row" style="${isDisplay ? '' : 'display:none'}">
+        <div class="prop-row" style="${isDisplay || isExtRender ? '' : 'display:none'}">
           <label class="prop-label">Render Style</label>
           <select class="prop-select" data-prop="render_style" data-type="int">${getStyleOptions(mode, item.render_style)}</select>
         </div>
@@ -311,7 +320,7 @@ export function flasherProperties(item: Flasher): string {
           <input type="checkbox" class="prop-input" data-prop="display_texture" ${item.display_texture !== false ? 'checked' : ''}>
         </div>
       </div>
-      <div class="prop-group">
+      <div class="prop-group" style="${isExtRender ? 'display:none' : ''}">
         <div class="prop-group-title">Transparency</div>
         <div class="prop-row">
           <label class="prop-label">${opacityLabel}</label>
