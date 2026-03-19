@@ -565,7 +565,7 @@ export interface Flasher extends GameObject {
   filter_amount: number;
   depth_bias: number;
   render_style: number;
-  render_mode?: 'flasher' | 'dmd' | 'display' | 'alpha_seg' | string;
+  render_mode?: 'flasher' | 'dmd' | 'display' | 'alpha_seg' | 'ext_render' | string;
   image_a?: string;
   image_b?: string;
   image_src_link?: string;
