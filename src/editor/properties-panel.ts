@@ -841,8 +841,13 @@ export function updatePropertiesPanel(resetTab: boolean = false): void {
             }
           });
         } else {
+          const isFlasherRenderMode = prop === 'render_mode' && primaryItem?._type === 'Flasher';
           for (const itemName of state.selectedItems) {
             await updateItemProperty(itemName, prop!, value);
+            if (isFlasherRenderMode) {
+              const defaultStyle = value === 'ext_render' ? 1 : 0;
+              await updateItemProperty(itemName, 'render_style', defaultStyle);
+            }
           }
         }
       });
