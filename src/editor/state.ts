@@ -153,6 +153,9 @@ export interface EditorState {
   ctrlZoomHandled: boolean;
   previewViewMode: string;
   isTableLocked: boolean;
+  measureStart: Point | null;
+  measureEnd: Point | null;
+  measureLive: Point | null;
 }
 
 export interface DragRect {
@@ -248,6 +251,9 @@ export const state: EditorState = {
   ctrlZoomHandled: false,
   previewViewMode: 'editor',
   isTableLocked: false,
+  measureStart: null,
+  measureEnd: null,
+  measureLive: null,
 };
 
 export const dragRect: DragRect = {

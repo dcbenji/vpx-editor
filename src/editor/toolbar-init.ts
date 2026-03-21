@@ -142,9 +142,13 @@ export function setUIEnabled(enabled: boolean): void {
 export function exitCreationMode(): void {
   state.creationMode = null;
   state.tool = 'select';
+  state.measureStart = null;
+  state.measureEnd = null;
+  state.measureLive = null;
   document.querySelectorAll('.toolbox-btn').forEach((b: Element) => b.classList.remove('creating'));
   document.getElementById('tool-select')?.classList.add('active');
   document.getElementById('tool-pan')?.classList.remove('active');
+  document.getElementById('tool-measure')?.classList.remove('active');
   setCanvasCursor('default');
   elements.statusBar!.textContent = 'Ready';
 }
@@ -202,6 +206,7 @@ export function setMagnifyMode(enabled: boolean): void {
   const magnifyBtn = document.getElementById('tool-magnify');
   const selectBtn = document.getElementById('tool-select');
   const panBtn = document.getElementById('tool-pan');
+  const measureBtn = document.getElementById('tool-measure');
 
   if (enabled) {
     exitCreationMode();
@@ -209,12 +214,14 @@ export function setMagnifyMode(enabled: boolean): void {
     magnifyBtn?.classList.add('active');
     selectBtn?.classList.remove('active');
     panBtn?.classList.remove('active');
+    measureBtn?.classList.remove('active');
     setCanvasCursor("url('cursors/magnify.png') 0 0, zoom-in");
   } else {
     state.tool = 'select';
     magnifyBtn?.classList.remove('active');
     selectBtn?.classList.add('active');
     panBtn?.classList.remove('active');
+    measureBtn?.classList.remove('active');
     setCanvasCursor('default');
   }
 }
@@ -286,6 +293,8 @@ export function initToolboxTools(): void {
     });
   }
 
+  const measureBtn = document.getElementById('tool-measure');
+
   if (selectBtn) {
     selectBtn.addEventListener('click', (): void => {
       if (is3DMode()) return;
@@ -294,6 +303,7 @@ export function initToolboxTools(): void {
       selectBtn.classList.add('active');
       magnifyBtn?.classList.remove('active');
       panBtn?.classList.remove('active');
+      measureBtn?.classList.remove('active');
       setCanvasCursor('default');
     });
   }
@@ -306,7 +316,55 @@ export function initToolboxTools(): void {
       panBtn.classList.add('active');
       magnifyBtn?.classList.remove('active');
       selectBtn?.classList.remove('active');
+      measureBtn?.classList.remove('active');
       setCanvasCursor('grab');
+    });
+  }
+}
+
+export function setMeasureMode(enabled: boolean): void {
+  const measureBtn = document.getElementById('tool-measure');
+  const selectBtn = document.getElementById('tool-select');
+  const panBtn = document.getElementById('tool-pan');
+  const magnifyBtn = document.getElementById('tool-magnify');
+
+  if (enabled) {
+    exitCreationMode();
+    state.tool = 'measure';
+    state.measureStart = null;
+    state.measureEnd = null;
+    state.measureLive = null;
+    measureBtn?.classList.add('active');
+    selectBtn?.classList.remove('active');
+    panBtn?.classList.remove('active');
+    magnifyBtn?.classList.remove('active');
+    setCanvasCursor('crosshair');
+    elements.statusBar!.textContent = 'Click to set first measure point';
+  } else {
+    state.tool = 'select';
+    state.measureStart = null;
+    state.measureEnd = null;
+    state.measureLive = null;
+    measureBtn?.classList.remove('active');
+    selectBtn?.classList.add('active');
+    panBtn?.classList.remove('active');
+    magnifyBtn?.classList.remove('active');
+    setCanvasCursor('default');
+    elements.statusBar!.textContent = 'Ready';
+    render();
+  }
+}
+
+export function initMeasureTool(): void {
+  const measureBtn = document.getElementById('tool-measure');
+  if (measureBtn) {
+    measureBtn.addEventListener('click', (): void => {
+      if (is3DMode()) return;
+      if (state.tool === 'measure') {
+        setMeasureMode(false);
+      } else {
+        setMeasureMode(true);
+      }
     });
   }
 }

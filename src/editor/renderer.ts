@@ -16,6 +16,7 @@ import {
   findNodeAtPoint,
   convertToUnit,
   getUnitSuffix,
+  getUnitLabel,
   getItemBounds,
 } from './utils.js';
 import { updateItemsList, selectItem, updateItemStatusInfo, updateSelectionStatus } from './items-panel.js';
@@ -90,8 +91,10 @@ import {
   enterCreationMode,
   createObjectAtPosition,
   setMagnifyMode,
+  setMeasureMode,
   initElementsToolbar,
   initToolboxTools,
+  initMeasureTool,
   initScriptButton,
   initTooltips,
   getCreationModeSetTime,
@@ -369,6 +372,25 @@ function zoomAtPoint(offsetX: number, offsetY: number, zoomFactor: number): void
 addLongPressContextMenu(elements.canvas!);
 
 elements.canvas!.addEventListener('pointerdown', e => {
+  if (state.tool === 'measure' && e.button === 0) {
+    const world = toWorld(e.offsetX, e.offsetY);
+    if (!state.measureStart || state.measureEnd) {
+      state.measureStart = { x: world.x, y: world.y };
+      state.measureEnd = null;
+      state.measureLive = null;
+      elements.statusBar!.textContent = 'Click to set second measure point';
+    } else {
+      state.measureEnd = { x: world.x, y: world.y };
+      state.measureLive = null;
+      const dx = state.measureEnd.x - state.measureStart.x;
+      const dy = state.measureEnd.y - state.measureStart.y;
+      const dist = convertToUnit(Math.sqrt(dx * dx + dy * dy));
+      elements.statusBar!.textContent = `Distance: ${dist.toFixed(2)} ${getUnitLabel()}`;
+    }
+    render();
+    return;
+  }
+
   if (state.tool === 'magnify') {
     if (e.button === 0) {
       zoomAtPoint(e.offsetX, e.offsetY, 1.5);
@@ -525,7 +547,14 @@ elements.canvas!.addEventListener('pointermove', e => {
     }
   }
 
-  if (dragRect.active) {
+  if (state.tool === 'measure' && state.measureStart && !state.measureEnd) {
+    state.measureLive = { x: world.x, y: world.y };
+    const dx = world.x - state.measureStart.x;
+    const dy = world.y - state.measureStart.y;
+    const dist = convertToUnit(Math.sqrt(dx * dx + dy * dy));
+    elements.statusBar!.textContent = `Distance: ${dist.toFixed(2)} ${getUnitLabel()}`;
+    render();
+  } else if (dragRect.active) {
     dragRect.endX = world.x;
     dragRect.endY = world.y;
     render();
@@ -1144,7 +1173,9 @@ document.addEventListener('keydown', async e => {
 
   if (e.key === 'Escape') {
     hideContextMenu();
-    if (state.creationMode) {
+    if (state.tool === 'measure') {
+      setMeasureMode(false);
+    } else if (state.creationMode) {
       exitCreationMode();
     } else if (state.selectedNode) {
       state.selectedNode = null;
@@ -1201,6 +1232,16 @@ document.addEventListener('keydown', async e => {
       setMagnifyMode(false);
     } else {
       setMagnifyMode(true);
+    }
+    return;
+  }
+
+  if (e.key === 'm' || e.key === 'M') {
+    if (state.viewMode === VIEW_MODE_3D) return;
+    if (state.tool === 'measure') {
+      setMeasureMode(false);
+    } else {
+      setMeasureMode(true);
     }
     return;
   }
@@ -1285,6 +1326,7 @@ window.vpxEditor.onScriptEditorClosed?.(() => {
 
 initElementsToolbar();
 initToolboxTools();
+initMeasureTool();
 initScriptButton();
 initToolboxResize(resizeCanvas);
 initRightPanelResize(resizeCanvas);
