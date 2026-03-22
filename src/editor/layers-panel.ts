@@ -156,7 +156,7 @@ function buildTreeData(): TreeNode[] {
       children.push({
         id: `item:${name}`,
         label: name,
-        icon: '<img src="icons/element.png" width="16" height="16" class="layer-icon">',
+        icon: '<img src="icons/element.svg" width="16" height="16" class="layer-icon">',
         checkState: item.editor_layer_visibility === false ? 'unchecked' : 'checked',
         showConnector: true,
         nodeType: 'item',
@@ -168,7 +168,7 @@ function buildTreeData(): TreeNode[] {
     return {
       id: `group:${groupData.name}`,
       label: groupData.name,
-      icon: '<img src="icons/group.png" width="16" height="16" class="layer-icon">',
+      icon: '<img src="icons/group.svg" width="16" height="16" class="layer-icon">',
       checkState: getCheckState(allItems),
       showConnector: true,
       children: children.length > 0 ? children : undefined,
@@ -189,7 +189,7 @@ function buildTreeData(): TreeNode[] {
   const rootNode: TreeNode = {
     id: '_root',
     label: 'Layers',
-    icon: '<img src="icons/layers.png" width="16" height="16" class="layer-icon">',
+    icon: '<img src="icons/layers.svg" width="16" height="16" class="layer-icon">',
     checkState: getCheckState(allItems),
     nodeType: 'root',
     allItems,
@@ -198,7 +198,7 @@ function buildTreeData(): TreeNode[] {
         return {
           id: `item:${child.name}`,
           label: child.name,
-          icon: '<img src="icons/element.png" width="16" height="16" class="layer-icon">',
+          icon: '<img src="icons/element.svg" width="16" height="16" class="layer-icon">',
           checkState: child.item.editor_layer_visibility === false ? 'unchecked' : 'checked',
           showConnector: true,
           nodeType: 'item' as const,

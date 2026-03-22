@@ -31,11 +31,9 @@
   height: 14px;
   margin-right: 6px;
   vertical-align: middle;
-  filter: invert(1);
 }
 
 [data-theme="light"] .context-menu-icon {
-  filter: none;
 }
 
 .context-menu-item:hover {
@@ -44,7 +42,6 @@
 }
 
 .context-menu-item:hover .context-menu-icon {
-  filter: invert(1);
 }
 
 .context-menu-item.disabled {

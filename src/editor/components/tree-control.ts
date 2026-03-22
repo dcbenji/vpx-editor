@@ -21,9 +21,6 @@ export interface TreeControlOptions {
 }
 
 export class TreeControl {
-  private cellSize: number = 18;
-  private rowHeight: number = 18;
-  private toggleSize: number = 13;
   private container: HTMLElement;
   private options: Required<TreeControlOptions>;
   public selectedId: string | null = null;
@@ -81,62 +78,59 @@ export class TreeControl {
 
   render(): void {
     this.container.innerHTML = '';
-    this.renderNodes(this.nodes, this.container, []);
+    this.renderNodes(this.nodes, this.container, 0);
   }
 
-  private renderNodes(nodes: TreeNode[], parent: HTMLElement, ancestorLast: boolean[]): void {
-    nodes.forEach((node, index) => {
-      const isLast = index === nodes.length - 1;
-      this.renderNode(node, parent, ancestorLast, isLast);
+  private renderNodes(nodes: TreeNode[], parent: HTMLElement, depth: number): void {
+    nodes.forEach((node) => {
+      this.renderNode(node, parent, depth);
     });
   }
 
-  private renderNode(node: TreeNode, parent: HTMLElement, ancestorLast: boolean[], isLast: boolean): void {
+  private renderNode(node: TreeNode, parent: HTMLElement, depth: number): void {
     const isExpanded = this.expandedIds.has(node.id);
     const hasChildren = node.children && node.children.length > 0;
     const isSelected = this.selectedId === node.id;
-    const depth = ancestorLast.length;
 
     const row = document.createElement('div');
     row.className = `tree-row${isSelected ? ' selected' : ''}`;
     row.dataset.id = node.id;
+    // Indentation via padding
+    row.style.paddingLeft = `${12 + depth * 16}px`;
 
     let html = '';
 
-    for (let i = 0; i < depth; i++) {
-      const isAncestorLast = ancestorLast[i];
-      html += `<span class="tree-indent">${isAncestorLast ? '' : this.verticalLine()}</span>`;
-    }
-
-    const showConnector = depth > 0;
+    // Toggle chevron (for nodes with children)
     html += `<span class="tree-branch">`;
-    if (showConnector) {
-      html += `<span class="tree-branch-lines">${this.branchConnector(isLast)}</span>`;
-    }
     if (hasChildren) {
-      html += `<span class="tree-toggle">${this.toggleIcon(isExpanded)}</span>`;
+      html += `<span class="tree-toggle">${this.chevronIcon(isExpanded)}</span>`;
     } else {
       html += `<span class="tree-toggle-spacer"></span>`;
     }
-    if (node.checkState !== undefined) {
-      html += `<span class="tree-checkbox">${this.checkboxIcon(node.checkState)}</span>`;
-    } else {
-      html += `<span class="tree-checkbox-spacer"></span>`;
-    }
     html += `</span>`;
 
+    // Icon
     if (node.icon) {
       html += `<span class="tree-icon">${node.icon}</span>`;
     }
 
+    // Label
     html += `<span class="tree-label">${node.label}</span>`;
 
+    // Suffix
     if (node.suffix) {
       html += `<span class="tree-suffix">${node.suffix}</span>`;
     }
 
+    // Visibility eye icon (replaces checkbox)
+    if (node.checkState !== undefined) {
+      const visClass = node.checkState === 'unchecked' ? ' visibility-off' : node.checkState === 'mixed' ? ' visibility-mixed' : '';
+      html += `<span class="tree-checkbox${visClass}">${this.eyeIcon(node.checkState)}</span>`;
+    }
+
     row.innerHTML = html;
 
+    // Toggle expand
     if (hasChildren) {
       row.querySelector('.tree-toggle')?.addEventListener('click', (e: Event) => {
         e.stopPropagation();
@@ -145,6 +139,7 @@ export class TreeControl {
       });
     }
 
+    // Visibility toggle
     if (node.checkState !== undefined) {
       row.querySelector('.tree-checkbox')?.addEventListener('click', (e: Event) => {
         e.stopPropagation();
@@ -152,11 +147,13 @@ export class TreeControl {
       });
     }
 
+    // Select
     row.addEventListener('click', () => {
       this.setSelected(node.id);
       this.options.onSelect(node.id, node);
     });
 
+    // Double-click to expand/collapse
     row.addEventListener('dblclick', () => {
       if (hasChildren) {
         this.setExpanded(node.id, !isExpanded);
@@ -164,6 +161,7 @@ export class TreeControl {
       }
     });
 
+    // Context menu
     addLongPressContextMenu(row);
     row.addEventListener('contextmenu', (e: MouseEvent) => {
       e.preventDefault();
@@ -171,6 +169,7 @@ export class TreeControl {
       this.options.onContextMenu(e, node.id, node);
     });
 
+    // Drag & drop
     if (this.options.onDragStart) {
       row.draggable = true;
       row.addEventListener('dragstart', (e: DragEvent) => {
@@ -195,61 +194,41 @@ export class TreeControl {
 
     parent.appendChild(row);
 
+    // Render children
     if (hasChildren && isExpanded) {
       const childContainer = document.createElement('div');
       childContainer.className = 'tree-children';
       parent.appendChild(childContainer);
 
-      this.renderNodes(node.children!, childContainer, [...ancestorLast, isLast]);
+      this.renderNodes(node.children!, childContainer, depth + 1);
     }
   }
 
-  private verticalLine(): string {
-    const width = this.cellSize;
-    const lineX = this.cellSize / 2;
-    return `<svg width="${width}" height="${this.rowHeight}" viewBox="0 0 ${width} ${this.rowHeight}">
-      <line x1="${lineX}" y1="0" x2="${lineX}" y2="${this.rowHeight}" stroke="var(--text-secondary)" stroke-width="1" stroke-dasharray="1,2"/>
+  private chevronIcon(expanded: boolean): string {
+    const rotation = expanded ? 'rotate(90deg)' : 'rotate(0deg)';
+    return `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="transform: ${rotation}; transition: transform 150ms ease;">
+      <path d="M5 3L9 7L5 11" stroke="var(--text-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>`;
   }
 
-  private branchConnector(isLast: boolean): string {
-    const midY = this.rowHeight / 2;
-    const y2 = isLast ? midY : this.rowHeight;
-    const width = this.cellSize * 2;
-    const lineX = this.cellSize / 2;
-    const lineEndX = this.cellSize + 3;
-    return `<svg width="${width}" height="${this.rowHeight}" viewBox="0 0 ${width} ${this.rowHeight}">
-      <line x1="${lineX}" y1="0" x2="${lineX}" y2="${y2}" stroke="var(--text-secondary)" stroke-width="1" stroke-dasharray="1,2"/>
-      <line x1="${lineX}" y1="${midY}" x2="${lineEndX}" y2="${midY}" stroke="var(--text-secondary)" stroke-width="1" stroke-dasharray="1,2"/>
-    </svg>`;
-  }
-
-  private toggleIcon(expanded: boolean): string {
-    const container = this.toggleSize;
-    const box = 9;
-    const offset = (container - box) / 2;
-    const mid = container / 2;
-    return `<svg width="${container}" height="${container}" viewBox="0 0 ${container} ${container}">
-      <rect x="${offset}" y="${offset}" width="${box}" height="${box}" fill="var(--bg-panel)" stroke="var(--text-secondary)" stroke-width="1"/>
-      <line x1="${offset + 2}" y1="${mid}" x2="${offset + box - 2}" y2="${mid}" stroke="var(--text-primary)" stroke-width="1"/>
-      ${expanded ? '' : `<line x1="${mid}" y1="${offset + 2}" x2="${mid}" y2="${offset + box - 2}" stroke="var(--text-primary)" stroke-width="1"/>`}
-    </svg>`;
-  }
-
-  private checkboxIcon(state: CheckState): string {
+  private eyeIcon(state: CheckState): string {
     if (state === 'checked') {
-      return `<svg width="13" height="13" viewBox="0 0 13 13">
-        <rect x="0.5" y="0.5" width="12" height="12" fill="var(--bg-panel)" stroke="var(--text-secondary)" stroke-width="1"/>
-        <path d="M3 6.5l2 2 4-4" fill="none" stroke="var(--text-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      // Visible — solid eye
+      return `<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M1 8C1 8 3.5 3 8 3C12.5 3 15 8 15 8C15 8 12.5 13 8 13C3.5 13 1 8 1 8Z" stroke="var(--accent)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="8" cy="8" r="2" stroke="var(--accent)" stroke-width="1.2"/>
       </svg>`;
     } else if (state === 'mixed') {
-      return `<svg width="13" height="13" viewBox="0 0 13 13">
-        <rect x="0.5" y="0.5" width="12" height="12" fill="var(--bg-panel)" stroke="var(--text-secondary)" stroke-width="1"/>
-        <rect x="3" y="3" width="7" height="7" fill="var(--text-primary)"/>
+      // Mixed — half eye
+      return `<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M1 8C1 8 3.5 3 8 3C12.5 3 15 8 15 8C15 8 12.5 13 8 13C3.5 13 1 8 1 8Z" stroke="var(--text-secondary)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="8" cy="8" r="2" stroke="var(--text-secondary)" stroke-width="1.2"/>
       </svg>`;
     }
-    return `<svg width="13" height="13" viewBox="0 0 13 13">
-      <rect x="0.5" y="0.5" width="12" height="12" fill="var(--bg-panel)" stroke="var(--text-secondary)" stroke-width="1"/>
+    // Unchecked — eye with slash (hidden)
+    return `<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M1 8C1 8 3.5 3 8 3C12.5 3 15 8 15 8C15 8 12.5 13 8 13C3.5 13 1 8 1 8Z" stroke="var(--text-secondary)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+      <line x1="3" y1="3" x2="13" y2="13" stroke="var(--text-secondary)" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
     </svg>`;
   }
 }

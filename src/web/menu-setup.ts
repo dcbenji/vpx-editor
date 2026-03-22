@@ -17,10 +17,11 @@ export function setIsBackglassMode(value: boolean): void {
 }
 
 export function setupMenu(context: MenuActionContext): void {
+  const menuBar = document.getElementById('menu-bar');
+
+  // Legacy fallback — if old hamburger structure exists, use it
   const menuDropdown = document.getElementById('menu-dropdown');
   const hamburgerBtn = document.getElementById('hamburger-btn');
-
-  if (!menuDropdown || !hamburgerBtn) return;
 
   const events = getEvents();
   const actionHandler = createMenuActionHandler(context);
@@ -36,22 +37,29 @@ export function setupMenu(context: MenuActionContext): void {
   };
 
   menuRenderer.updateState(currentMenuState);
-  menuRenderer.render(menuDropdown);
 
-  hamburgerBtn.addEventListener('click', e => {
-    e.stopPropagation();
-    if (menuDropdown.classList.contains('show')) {
-      menuDropdown.classList.remove('show');
-    } else {
-      menuDropdown.classList.add('show');
-    }
-  });
+  if (menuBar) {
+    // New menu bar mode — render into the bar, which creates nav-link buttons
+    menuRenderer.renderMenuBar(menuBar);
+  } else if (menuDropdown && hamburgerBtn) {
+    // Legacy hamburger fallback
+    menuRenderer.render(menuDropdown);
 
-  document.addEventListener('click', e => {
-    if (!menuDropdown.contains(e.target as Node) && e.target !== hamburgerBtn) {
-      menuDropdown.classList.remove('show');
-    }
-  });
+    hamburgerBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      if (menuDropdown.classList.contains('show')) {
+        menuDropdown.classList.remove('show');
+      } else {
+        menuDropdown.classList.add('show');
+      }
+    });
+
+    document.addEventListener('click', e => {
+      if (!menuDropdown.contains(e.target as Node) && e.target !== hamburgerBtn) {
+        menuDropdown.classList.remove('show');
+      }
+    });
+  }
 
   events.on('table-loaded', () => {
     updateMenuState({ hasTable: true });

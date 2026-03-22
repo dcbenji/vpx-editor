@@ -94,6 +94,7 @@ import {
   initToolboxTools,
   initScriptButton,
   initTooltips,
+  initThemeToggle,
   getCreationModeSetTime,
 } from './toolbar-init.js';
 import {
@@ -1290,6 +1291,7 @@ initToolboxResize(resizeCanvas);
 initRightPanelResize(resizeCanvas);
 initLayersResize();
 initTooltips();
+initThemeToggle();
 loadPanelSettings();
 initTheme();
 setUIEnabled(false);

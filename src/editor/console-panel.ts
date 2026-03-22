@@ -14,6 +14,25 @@ function formatLogLine(text: string): string {
   if (/ WARN /.test(text)) return `<span class="log-warn">${escaped}</span>`;
   return escaped;
 }
+
+// Update console title text
+const consoleTitleEl = document.getElementById('console-title');
+if (consoleTitleEl) consoleTitleEl.textContent = 'CONSOLE OUTPUT';
+
+// Change clear button to text-based "Clear Logs"
+const consoleClearBtn = document.getElementById('console-clear');
+if (consoleClearBtn) {
+  consoleClearBtn.textContent = 'Clear Logs';
+}
+
+// Insert divider between clear button and pin/close icon buttons
+const consoleControls = document.getElementById('console-controls');
+if (consoleControls && consoleClearBtn) {
+  const divider = document.createElement('span');
+  divider.className = 'console-controls-divider';
+  consoleControls.insertBefore(divider, consoleClearBtn.nextSibling);
+}
+
 const consoleResizeHandle = document.getElementById('console-resize-handle') as HTMLElement | null;
 const consolePanel = document.getElementById('console-panel') as HTMLElement | null;
 let consolePinned = false;
@@ -59,8 +78,17 @@ function appendConsoleLine(text: string, type: ConsoleLineType = 'stdout'): void
     line.className = `line ${type}`;
     if (useLogLevel) {
       line.innerHTML = formatLogLine(lineText);
+    } else if (timestamp) {
+      const tsSpan = document.createElement('span');
+      tsSpan.className = 'timestamp';
+      tsSpan.textContent = timestamp;
+      const msgSpan = document.createElement('span');
+      msgSpan.className = 'message';
+      msgSpan.textContent = lineText || ' ';
+      line.appendChild(tsSpan);
+      line.appendChild(msgSpan);
     } else {
-      line.textContent = timestamp ? `${timestamp}: ${lineText || ' '}` : lineText;
+      line.textContent = lineText;
     }
     consoleOutput.appendChild(line);
   }

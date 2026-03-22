@@ -102,6 +102,7 @@ export function setUIEnabled(enabled: boolean): void {
   const pointerEvents = enabled ? '' : 'none';
 
   document.querySelectorAll('#toolbar .tool-btn, #toolbar .tool-select').forEach((el: Element) => {
+    if (el.id === 'theme-toggle') return;
     const element = el as HTMLButtonElement;
     element.disabled = !enabled;
     element.style.opacity = opacity;
@@ -253,7 +254,7 @@ export function initElementsToolbar(): void {
     btn.dataset.tooltip = objectTypeLabels[type] || type;
 
     const img = document.createElement('img');
-    img.src = `icons/${elementIcons[type] || type.toLowerCase()}.png`;
+    img.src = `icons/${elementIcons[type] || type.toLowerCase()}.svg`;
     img.alt = type;
     btn.appendChild(img);
 
@@ -319,6 +320,45 @@ export function initScriptButton(): void {
       window.vpxEditor.toggleScriptEditor();
     });
   }
+}
+
+export function initThemeToggle(): void {
+  const btn = document.getElementById('theme-toggle');
+  if (!btn) return;
+
+  const moonIcon = document.getElementById('theme-icon-moon');
+  const sunIcon = document.getElementById('theme-icon-sun');
+
+  function updateIcons(): void {
+    const current = document.documentElement.getAttribute('data-theme');
+    if (moonIcon && sunIcon) {
+      moonIcon.style.display = current === 'light' ? 'none' : 'block';
+      sunIcon.style.display = current === 'light' ? 'block' : 'none';
+    }
+  }
+
+  updateIcons();
+
+  btn.addEventListener('click', (): void => {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+
+    // Persist to localStorage
+    try {
+      const stored = localStorage.getItem('vpx-editor-editorSettings');
+      const settings = stored ? JSON.parse(stored) : {};
+      settings.theme = next;
+      localStorage.setItem('vpx-editor-editorSettings', JSON.stringify(settings));
+    } catch (_) {}
+
+    // Notify the editor
+    if (window.__vpxEvents) {
+      window.__vpxEvents.emit('set-theme', next);
+    }
+
+    updateIcons();
+  });
 }
 
 export function initTooltips(): void {

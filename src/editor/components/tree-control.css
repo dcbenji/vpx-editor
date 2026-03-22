@@ -1,136 +1,163 @@
-:root {
-  --tree-cell: 18px;
-  --tree-row-height: 18px;
-}
+/* Modern tree control */
 
 .tree-row {
   display: flex;
   align-items: center;
-  padding: 1px 4px;
+  padding: 6px 12px;
   cursor: pointer;
   white-space: nowrap;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  border-left: 2px solid transparent;
+  transition: background var(--transition-fast, 150ms ease),
+              border-color var(--transition-fast, 150ms ease);
+  gap: 6px;
 }
 
 .tree-row:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--hover-bg);
+}
+
+.tree-row.selected {
+  background: var(--accent-subtle);
+  border-left-color: var(--accent);
 }
 
 .tree-row.selected .tree-label {
-  background: var(--accent);
-  color: white;
-  padding: 1px 4px;
-  margin: -1px 0;
-  border-radius: 2px;
+  background: transparent;
+  color: var(--text-primary);
+  font-weight: 700;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
 }
 
 .tree-row.drag-over {
-  background: rgba(0, 120, 212, 0.2);
+  background: var(--accent-subtle);
   outline: 1px dashed var(--accent);
 }
 
+/* Indentation — applied via inline padding-left */
 .tree-indent {
-  display: inline-flex;
-  width: var(--tree-cell);
-  height: var(--tree-row-height);
-  flex-shrink: 0;
-  align-items: center;
+  display: none; /* Hide old SVG connectors */
 }
 
-.tree-indent svg {
-  display: block;
-}
-
+/* Branch — hide old SVG connectors */
 .tree-branch {
-  position: relative;
   display: inline-flex;
   align-items: center;
-  width: calc(var(--tree-cell) * 2);
-  height: var(--tree-row-height);
   flex-shrink: 0;
+  width: auto;
+  height: auto;
 }
 
 .tree-branch-lines {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
+  display: none; /* Hide dotted lines */
 }
 
-.tree-branch-lines svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
+/* Toggle — chevron style */
 .tree-toggle {
   display: inline-flex;
-  width: var(--tree-cell);
-  height: var(--tree-row-height);
+  width: 16px;
+  height: 16px;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
-  position: relative;
-  z-index: 1;
+  border-radius: 3px;
+  transition: background var(--transition-fast, 150ms ease);
 }
 
-.tree-toggle:hover svg rect {
-  fill: var(--bg-toolbar);
+.tree-toggle:hover {
+  background: var(--hover-bg);
+}
+
+.tree-toggle svg {
+  transition: transform var(--transition-fast, 150ms ease);
 }
 
 .tree-toggle-spacer {
   display: inline-block;
-  width: var(--tree-cell);
-  height: var(--tree-row-height);
+  width: 16px;
+  height: 16px;
   flex-shrink: 0;
-  position: relative;
-  z-index: 1;
 }
 
+/* Visibility toggle — eye icon style */
 .tree-checkbox {
   display: inline-flex;
-  width: var(--tree-cell);
-  height: var(--tree-row-height);
+  width: 20px;
+  height: 20px;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
-  position: relative;
-  z-index: 1;
+  margin-left: auto;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity var(--transition-fast, 150ms ease),
+              background var(--transition-fast, 150ms ease);
+}
+
+.tree-row:hover .tree-checkbox,
+.tree-row.selected .tree-checkbox {
+  opacity: 1;
+}
+
+/* Always show when unchecked (hidden) or mixed */
+.tree-checkbox.visibility-off,
+.tree-checkbox.visibility-mixed {
+  opacity: 0.6;
+}
+
+.tree-row:hover .tree-checkbox.visibility-off,
+.tree-row.selected .tree-checkbox.visibility-off,
+.tree-row:hover .tree-checkbox.visibility-mixed,
+.tree-row.selected .tree-checkbox.visibility-mixed {
+  opacity: 1;
+}
+
+.tree-checkbox:hover {
+  background: var(--hover-bg);
 }
 
 .tree-checkbox-spacer {
-  display: inline-block;
-  width: var(--tree-cell);
-  height: var(--tree-row-height);
-  flex-shrink: 0;
-  position: relative;
-  z-index: 1;
+  display: none;
 }
 
-.tree-checkbox:hover svg rect:first-child {
-  fill: var(--bg-toolbar);
-}
-
+/* Icon */
 .tree-icon {
   display: inline-flex;
-  width: var(--tree-row-height);
-  height: var(--tree-row-height);
+  width: 18px;
+  height: 18px;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  margin-left: 0;
-  margin-right: 2px;
 }
 
+.tree-icon img {
+  width: 16px;
+  height: 16px;
+}
+
+/* Label */
 .tree-label {
   font-size: 12px;
-  padding: 1px 2px;
+  padding: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+/* Suffix (item count, etc.) */
 .tree-suffix {
-  font-size: 11px;
-  color: var(--text-secondary);
-  margin-left: 8px;
+  font-size: 10px;
+  color: var(--text-tertiary);
+  background: var(--hover-bg);
+  padding: 1px 6px;
+  border-radius: 8px;
+  margin-left: 4px;
 }
 
 .tree-children {

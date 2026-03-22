@@ -19,13 +19,14 @@
 }
 
 #properties-panel h3 {
-  padding: 8px 12px;
-  margin: 0;
-  font-size: 11px;
-  font-weight: 600;
+  padding: 0 16px;
+  margin: 0 0 16px 0;
+  font-size: 10px;
+  font-weight: 900;
   text-transform: uppercase;
+  letter-spacing: 0.1em;
   color: var(--text-secondary);
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: none;
 }
 
 #properties-content {
@@ -39,45 +40,54 @@
 }
 
 .prop-group-title {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 10px;
+  font-weight: 900;
   text-transform: uppercase;
+  letter-spacing: 0.1em;
   color: var(--text-secondary);
-  margin-bottom: 8px;
+  margin-bottom: 16px;
+  padding: 0 16px;
 }
 
 .prop-row {
   display: flex;
-  align-items: center;
-  margin-bottom: 6px;
+  flex-direction: column;
+  align-items: stretch;
+  margin-bottom: 16px;
+  padding: 0 16px;
 }
 
 .prop-label {
-  width: 140px;
-  flex-shrink: 0;
   font-size: 11px;
+  font-weight: 500;
   color: var(--text-secondary);
-  text-align: right;
-  padding-right: 8px;
+  margin-bottom: 4px;
+  text-align: left;
+  width: auto;
+  flex-shrink: 0;
+  padding-right: 0;
 }
 
 .prop-input {
-  flex: 1;
-  padding: 4px 8px;
-  background: var(--bg-dark);
-  border: 1px solid var(--border-color);
-  border-radius: 3px;
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--bg-input);
+  border: none;
+  border-radius: var(--radius-sm, 6px);
   color: var(--text-primary);
   font-size: 12px;
+  font-family: inherit;
+  transition: box-shadow var(--transition-fast, 150ms ease);
+  box-sizing: border-box;
 }
 
 .prop-input:focus {
   outline: none;
-  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent);
 }
 
 .prop-input[type="number"] {
-  width: 90px;
+  width: 100%;
   flex: none;
 }
 
@@ -91,6 +101,7 @@
   flex: none;
   width: auto;
   margin: 0;
+  padding: 0;
 }
 
 .prop-checkbox-label {
@@ -108,14 +119,14 @@
 
 .prop-input[type="color"] {
   width: 60px;
-  height: 24px;
+  height: 28px;
   flex: none;
-  padding: 0;
+  padding: 2px;
   cursor: pointer;
   -webkit-appearance: none;
   appearance: none;
-  border: 1px solid var(--border-color);
-  border-radius: 3px;
+  border: none;
+  border-radius: var(--radius-sm, 6px);
   overflow: hidden;
 }
 
@@ -125,16 +136,16 @@
 
 .prop-input[type="color"]::-webkit-color-swatch {
   border: none;
-  border-radius: 2px;
+  border-radius: 4px;
   background: inherit;
 }
 
 .prop-select {
-  flex: 1;
-  padding: 4px 8px;
-  background: var(--bg-dark);
-  border: 1px solid var(--border-color);
-  border-radius: 3px;
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--bg-input);
+  border: none;
+  border-radius: var(--radius-sm, 6px);
   color: var(--text-primary);
   font-family: inherit;
   font-size: 12px;
@@ -145,10 +156,13 @@
   background-repeat: no-repeat;
   background-position: right 8px center;
   padding-right: 24px;
+  transition: box-shadow var(--transition-fast, 150ms ease);
+  box-sizing: border-box;
 }
 
 .prop-select:focus {
   outline: none;
+  box-shadow: 0 0 0 2px var(--accent);
 }
 
 .prop-select option {
@@ -157,17 +171,18 @@
 }
 
 .prop-button {
-  padding: 4px 12px;
-  background: var(--bg-dark);
-  border: 1px solid var(--border-color);
-  border-radius: 3px;
+  padding: 6px 12px;
+  background: var(--bg-input);
+  border: none;
+  border-radius: var(--radius-sm, 6px);
   color: var(--text-primary);
   font-size: 12px;
   cursor: pointer;
+  transition: background var(--transition-fast, 150ms ease);
 }
 
 .prop-button:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--hover-bg);
 }
 
 .prop-button:disabled {
@@ -178,8 +193,8 @@
 .prop-button-row {
   display: flex;
   gap: 8px;
-  margin-bottom: 6px;
-  margin-left: 140px;
+  margin-bottom: 16px;
+  padding: 0 16px;
 }
 
 .prop-row-inline {
@@ -196,7 +211,6 @@
   width: 14px;
   height: 14px;
   margin-left: 6px;
-  filter: var(--icon-filter);
 }
 
 .prop-lock-icon-clickable {
@@ -213,18 +227,27 @@
   background: var(--bg-panel);
   z-index: 12;
   margin: -12px -12px 0 -12px;
-  padding: 12px 12px 8px 12px;
+  padding: 12px 16px 8px 16px;
   border-bottom: 1px solid var(--border-color);
 }
 
 .prop-header-sticky .prop-row {
+  flex-direction: row;
+  align-items: center;
   gap: 6px;
+  margin-bottom: 0;
+  padding: 0;
 }
 
 .prop-header-sticky .prop-label {
   width: auto;
   padding-right: 0;
   flex-shrink: 0;
+  margin-bottom: 0;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
 .prop-header-sticky .prop-name-display {
@@ -239,6 +262,19 @@
 
 .prop-header-sticky .rename-btn {
   flex-shrink: 0;
+  padding: 4px 8px;
+  background: var(--bg-input);
+  border: none;
+  border-radius: var(--radius-sm, 6px);
+  color: var(--text-secondary);
+  font-size: 10px;
+  cursor: pointer;
+  transition: background var(--transition-fast, 150ms ease);
+}
+
+.prop-header-sticky .rename-btn:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
 }
 
 .prop-header-sticky .prop-lock-icon {
@@ -266,18 +302,19 @@
   height: 12px;
   cursor: pointer;
   flex-shrink: 0;
-  filter: var(--icon-filter);
 }
 
 .prop-goto-icon:hover {
   opacity: 0.7;
 }
 
+/* Pill-style tab switcher */
 .prop-tabs {
   display: flex;
-  margin: 0 -12px 12px -12px;
-  padding: 0 12px;
-  background: var(--bg-panel);
+  margin: 8px 4px 12px 4px;
+  padding: 4px;
+  background: var(--bg-grouped, var(--bg-input));
+  border-radius: var(--radius-lg, 12px);
   position: sticky;
   top: 24px;
   z-index: 11;
@@ -285,15 +322,17 @@
 
 .prop-tab {
   flex: 1;
-  padding: 8px 4px;
+  padding: 6px 4px;
   background: transparent;
   border: none;
-  border-bottom: 2px solid transparent;
+  border-bottom: none;
   color: var(--text-secondary);
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   text-transform: uppercase;
+  border-radius: var(--radius-md, 8px);
+  transition: all var(--transition-fast, 150ms ease);
 }
 
 .prop-tab:hover {
@@ -301,8 +340,9 @@
 }
 
 .prop-tab.active {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
+  background: var(--bg-panel);
+  color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .prop-tab-content {
@@ -311,4 +351,24 @@
 
 .prop-tab-content.active {
   display: block;
+}
+
+/* Grid layout for position fields */
+.prop-grid-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+
+.prop-grid-row .prop-row {
+  padding: 0;
+  margin-bottom: 0;
+}
+
+.placeholder {
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 16px;
 }

@@ -1,16 +1,66 @@
 #toolbox-panel {
-  width: 200px;
-  min-width: 100px;
-  max-width: 400px;
+  width: 64px;
+  min-width: 64px;
+  max-width: 64px;
   background: var(--bg-panel);
-  border-right: none;
+  border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
   flex-shrink: 0;
 }
 
-#toolbox-resize-handle,
+.toolbox-tools,
+.toolbox-elements {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
+}
+
+.toolbox-elements {
+  border-top: 1px solid var(--border-color);
+  margin-top: 0;
+  padding-top: 16px;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.toolbox-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  padding: 0;
+  transition: background var(--transition-fast);
+}
+
+.toolbox-btn:hover {
+  background: var(--hover-bg);
+}
+
+.toolbox-btn.active,
+.toolbox-btn.creating {
+  background: var(--accent);
+}
+
+.toolbox-btn img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.toolbox-btn.active img,
+.toolbox-btn.creating img {
+}
+
+/* Right panel resize handle */
 #right-resize-handle {
   width: 4px;
   background: var(--border-color);
@@ -21,7 +71,6 @@
   touch-action: none;
 }
 
-#toolbox-resize-handle::after,
 #right-resize-handle::after {
   content: '';
   position: absolute;
@@ -32,13 +81,12 @@
   cursor: col-resize;
 }
 
-#toolbox-resize-handle:hover,
-#toolbox-resize-handle.dragging,
 #right-resize-handle:hover,
 #right-resize-handle.dragging {
   background: var(--accent);
 }
 
+/* Layers resize handle */
 #layers-resize-handle {
   height: 4px;
   background: var(--border-color);
@@ -64,67 +112,7 @@
   background: var(--accent);
 }
 
-.toolbox-section {
-  border-bottom: 1px solid var(--border-color);
-}
-
-.toolbox-title {
-  padding: 8px 12px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.toolbox-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  padding: 6px;
-}
-
-.menu-separator {
-  border: none;
-  border-top: 1px solid var(--border-color);
-  margin: 4px 8px;
-}
-
-.toolbox-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  cursor: pointer;
-  padding: 2px;
-}
-
-.toolbox-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: var(--border-color);
-}
-
-.toolbox-btn.active,
-.toolbox-btn.creating {
-  background: var(--accent);
-  border-color: var(--accent);
-}
-
-.toolbox-btn img {
-  width: 24px;
-  height: 24px;
-  object-fit: contain;
-  filter: var(--icon-filter);
-}
-
-.toolbox-btn.active img,
-.toolbox-btn.creating img {
-  filter: brightness(0) invert(1);
-}
-
+/* Floating buttons (viewport overlays) */
 .floating-btn {
   position: absolute;
   top: 8px;

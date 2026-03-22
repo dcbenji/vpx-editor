@@ -125,7 +125,7 @@ function tableProperties(gamedata: GameData): string {
     <div class="prop-header-sticky">
       <div class="prop-row">
         <label class="prop-label">Name:</label>
-        <img src="icons/${lockIcon}.png" class="prop-lock-icon prop-lock-icon-clickable" id="lock-table-icon" alt="${lockLabel}" title="Click to ${lockLabel.toLowerCase()}">
+        <img src="icons/${lockIcon}.svg" class="prop-lock-icon prop-lock-icon-clickable" id="lock-table-icon" alt="${lockLabel}" title="Click to ${lockLabel.toLowerCase()}">
         <span class="prop-name-display" title="${gamedata.name || 'Table1'}">${gamedata.name || 'Table1'}</span>
         <button class="rename-btn" id="rename-table-btn">Rename</button>
       </div>
@@ -403,7 +403,7 @@ function backglassProperties(gamedata: GameData): string {
     <div class="prop-header-sticky">
       <div class="prop-row">
         <label class="prop-label">Name:</label>
-        <img src="icons/${lockIcon}.png" class="prop-lock-icon prop-lock-icon-clickable" id="lock-table-icon" alt="${lockLabel}" title="Click to ${lockLabel.toLowerCase()}">
+        <img src="icons/${lockIcon}.svg" class="prop-lock-icon prop-lock-icon-clickable" id="lock-table-icon" alt="${lockLabel}" title="Click to ${lockLabel.toLowerCase()}">
         <span class="prop-name-display" title="${gamedata.name || 'Table1'}">${gamedata.name || 'Table1'}</span>
         <button class="rename-btn" id="rename-table-btn">Rename</button>
       </div>
@@ -706,7 +706,7 @@ export function updatePropertiesPanel(resetTab: boolean = false): void {
     <div class="prop-header-sticky">
       <div class="prop-row">
         <label class="prop-label">Name:</label>
-        <img src="icons/${isLocked ? 'locked' : 'unlocked'}.png" class="prop-lock-icon${canToggleLock ? ' prop-lock-icon-clickable' : ''}" id="lock-object-icon" alt="${isLocked ? 'Locked' : 'Unlocked'}" title="${canToggleLock ? `Click to ${lockLabel.toLowerCase()}` : 'Table is locked'}">
+        <img src="icons/${isLocked ? 'locked' : 'unlocked'}.svg" class="prop-lock-icon${canToggleLock ? ' prop-lock-icon-clickable' : ''}" id="lock-object-icon" alt="${isLocked ? 'Locked' : 'Unlocked'}" title="${canToggleLock ? `Click to ${lockLabel.toLowerCase()}` : 'Table is locked'}">
         <span class="prop-name-display" title="${nameValue}">${nameValue}</span>
         ${collectionGotoIcon}
         <button class="rename-btn" id="rename-object-btn"${isLocked || isMultiSelect ? ' disabled' : ''}>Rename</button>

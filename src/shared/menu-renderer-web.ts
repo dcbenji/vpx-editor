@@ -8,6 +8,7 @@ export interface WebMenuCallbacks {
 
 export interface WebMenuRenderer {
   render: (container: HTMLElement) => void;
+  renderMenuBar: (container: HTMLElement) => void;
   updateState: (state: MenuState) => void;
   destroy: () => void;
 }
@@ -18,7 +19,9 @@ export function createWebMenuRenderer(callbacks: WebMenuCallbacks): WebMenuRende
   const filteredSchema = filterMenuForPlatform(menuSchema, context);
 
   let menuContainer: HTMLElement | null = null;
+  let menuBarContainer: HTMLElement | null = null;
   let currentState: MenuState | null = null;
+  let activeMenuBarDropdown: HTMLElement | null = null;
 
   function closeAllSubmenus(): void {
     if (!menuContainer) return;
@@ -28,9 +31,26 @@ export function createWebMenuRenderer(callbacks: WebMenuCallbacks): WebMenuRende
   }
 
   function closeMenu(): void {
+    if (menuBarContainer) {
+      closeMenuBar();
+    }
     if (!menuContainer) return;
     menuContainer.classList.remove('show');
     closeAllSubmenus();
+  }
+
+  function closeMenuBar(): void {
+    if (!menuBarContainer) return;
+    menuBarContainer.querySelectorAll('.menubar-dropdown.show').forEach(el => {
+      el.classList.remove('show');
+    });
+    menuBarContainer.querySelectorAll('.nav-link.active').forEach(el => {
+      el.classList.remove('active');
+    });
+    menuBarContainer.querySelectorAll('.menu-submenu.expanded').forEach(el => {
+      el.classList.remove('expanded');
+    });
+    activeMenuBarDropdown = null;
   }
 
   function menuHasCheckbox(items: MenuItemSchema[]): boolean {
@@ -219,16 +239,84 @@ export function createWebMenuRenderer(callbacks: WebMenuCallbacks): WebMenuRende
     processItems(filteredSchema);
   }
 
+  function renderMenuBar(container: HTMLElement): void {
+    menuBarContainer = container;
+    menuContainer = container;
+    if (!currentState) return;
+
+    container.innerHTML = '';
+    container.className = 'menubar';
+
+    for (const item of filteredSchema) {
+      if (!item.submenu || !item.label) continue;
+
+      const itemState = evaluateMenuItem(item, currentState, context);
+      if (!itemState.visible) continue;
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'menubar-item';
+      wrapper.dataset.menuId = item.id;
+
+      const btn = document.createElement('button');
+      btn.className = 'nav-link';
+      btn.textContent = itemState.label || item.label;
+
+      const dropdown = document.createElement('div');
+      dropdown.className = 'menubar-dropdown';
+
+      const submenuHasCheckbox = menuHasCheckbox(item.submenu);
+      for (const subItem of item.submenu) {
+        const menuItem = createMenuItem(subItem, currentState, submenuHasCheckbox);
+        if (menuItem) {
+          dropdown.appendChild(menuItem);
+        }
+      }
+
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const isOpen = dropdown.classList.contains('show');
+        closeMenuBar();
+        if (!isOpen) {
+          dropdown.classList.add('show');
+          btn.classList.add('active');
+          activeMenuBarDropdown = dropdown;
+        }
+      });
+
+      btn.addEventListener('mouseenter', () => {
+        if (activeMenuBarDropdown && activeMenuBarDropdown !== dropdown) {
+          closeMenuBar();
+          dropdown.classList.add('show');
+          btn.classList.add('active');
+          activeMenuBarDropdown = dropdown;
+        }
+      });
+
+      wrapper.appendChild(btn);
+      wrapper.appendChild(dropdown);
+      container.appendChild(wrapper);
+    }
+
+    document.addEventListener('click', e => {
+      if (!menuBarContainer) return;
+      if (!menuBarContainer.contains(e.target as Node)) {
+        closeMenuBar();
+      }
+    });
+  }
+
   function destroy(): void {
     if (menuContainer) {
       menuContainer.innerHTML = '';
     }
     menuContainer = null;
+    menuBarContainer = null;
     currentState = null;
   }
 
   return {
     render,
+    renderMenuBar,
     updateState,
     destroy,
   };

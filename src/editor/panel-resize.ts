@@ -1,19 +1,15 @@
 import {
-  TOOLBOX_MIN_WIDTH,
-  TOOLBOX_MAX_WIDTH,
   RIGHT_PANEL_MIN_WIDTH,
   RIGHT_PANEL_MAX_WIDTH,
 } from '../shared/constants.js';
 
 interface PanelSettings {
-  toolboxWidth?: number;
   rightPanelWidth?: number;
   layersHeight?: number;
 }
 
 export function savePanelSettings(): void {
   const panelSettings: PanelSettings = {
-    toolboxWidth: document.getElementById('toolbox-panel')?.offsetWidth,
     rightPanelWidth: document.getElementById('right-panel')?.offsetWidth,
     layersHeight: document.getElementById('layers-panel')?.offsetHeight,
   };
@@ -25,10 +21,6 @@ export async function loadPanelSettings(): Promise<void> {
     const panelSettings: PanelSettings | null = await window.vpxEditor.getPanelSettings();
     if (!panelSettings) return;
 
-    if (panelSettings.toolboxWidth) {
-      const panel = document.getElementById('toolbox-panel');
-      if (panel) panel.style.width = panelSettings.toolboxWidth + 'px';
-    }
     if (panelSettings.rightPanelWidth) {
       const panel = document.getElementById('right-panel');
       if (panel) panel.style.width = panelSettings.rightPanelWidth + 'px';
@@ -43,49 +35,9 @@ export async function loadPanelSettings(): Promise<void> {
   } catch {}
 }
 
-export function initToolboxResize(resizeCanvas: () => void): void {
-  const handle = document.getElementById('toolbox-resize-handle');
-  const panel = document.getElementById('toolbox-panel');
-  if (!handle || !panel) return;
-
-  let startX: number;
-  let startWidth: number;
-  let activePointerId: number | null = null;
-
-  const onPointerMove = (e: PointerEvent): void => {
-    if (e.pointerId !== activePointerId) return;
-    const delta = e.clientX - startX;
-    const newWidth = Math.min(TOOLBOX_MAX_WIDTH, Math.max(TOOLBOX_MIN_WIDTH, startWidth + delta));
-    panel.style.width = newWidth + 'px';
-    resizeCanvas();
-  };
-
-  const onPointerEnd = (e: PointerEvent): void => {
-    if (e.pointerId !== activePointerId) return;
-    activePointerId = null;
-    handle.releasePointerCapture(e.pointerId);
-    handle.classList.remove('dragging');
-    document.body.style.cursor = '';
-    document.body.style.userSelect = '';
-    handle.removeEventListener('pointermove', onPointerMove);
-    handle.removeEventListener('pointerup', onPointerEnd);
-    handle.removeEventListener('pointercancel', onPointerEnd);
-    savePanelSettings();
-  };
-
-  handle.addEventListener('pointerdown', (e: PointerEvent) => {
-    if (activePointerId !== null) return;
-    activePointerId = e.pointerId;
-    startX = e.clientX;
-    startWidth = panel.offsetWidth;
-    handle.setPointerCapture(e.pointerId);
-    handle.classList.add('dragging');
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
-    handle.addEventListener('pointermove', onPointerMove);
-    handle.addEventListener('pointerup', onPointerEnd);
-    handle.addEventListener('pointercancel', onPointerEnd);
-  });
+/** Toolbox is now a fixed-width icon strip — resize is disabled. */
+export function initToolboxResize(_resizeCanvas: () => void): void {
+  // No-op: toolbox resize handle has been removed; sidebar is fixed at 64px.
 }
 
 export function initRightPanelResize(resizeCanvas: () => void): void {
