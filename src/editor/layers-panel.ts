@@ -13,7 +13,7 @@ import {
 import { selectItem } from './items-panel.js';
 import { showItemsPanelContextMenu, showPartGroupContextMenu } from './context-menu.js';
 import { updatePropertiesPanel } from './properties-panel.js';
-import { TreeControl, TreeNode as BaseTreeNode } from './components/tree-control.js';
+import { TreeControl, TreeNode as BaseTreeNode, type DropPosition } from './components/tree-control.js';
 import { registerCallback, invokeCallback, getCallback } from '../shared/callbacks.js';
 import { generateUniqueFileName, getPartGroupInsertIndex } from '../shared/gameitem-utils.js';
 interface TreeNode {
@@ -135,10 +135,26 @@ function buildTreeData(): TreeNode[] {
     }
   }
 
+  // Sort by gameitems.json order using _fileName for reliable matching
+  const gameitemOrder = new Map<string, number>();
+  state.gameitems.forEach((gi: { file_name: string }, idx: number) => {
+    gameitemOrder.set(gi.file_name.toLowerCase(), idx);
+  });
+
+  const getOrder = (child: GroupData | { name: string; item: GameItem; isItem: true }): number => {
+    if ('isItem' in child) {
+      const fileName = child.item._fileName?.replace(/^gameitems\//, '');
+      return fileName ? (gameitemOrder.get(fileName.toLowerCase()) ?? 9999) : 9999;
+    }
+    const fileName = child.group._fileName?.replace(/^gameitems\//, '');
+    return fileName ? (gameitemOrder.get(fileName.toLowerCase()) ?? 9999) : 9999;
+  };
+
   rootChildren.sort((a, b) => {
+    // Groups before items
     if ('isItem' in a && !('isItem' in b)) return 1;
     if (!('isItem' in a) && 'isItem' in b) return -1;
-    return a.name.localeCompare(b.name);
+    return getOrder(a) - getOrder(b);
   });
 
   function convertGroup(groupData: GroupData): TreeNode {
@@ -146,12 +162,24 @@ function buildTreeData(): TreeNode[] {
 
     const children: TreeNode[] = [];
 
-    const sortedChildren = [...groupData.children].sort((a, b) => a.name.localeCompare(b.name));
+    const sortedChildren = [...groupData.children].sort((a, b) => {
+      const fileA = a.group._fileName?.replace(/^gameitems\//, '');
+      const fileB = b.group._fileName?.replace(/^gameitems\//, '');
+      const orderA = fileA ? (gameitemOrder.get(fileA.toLowerCase()) ?? 9999) : 9999;
+      const orderB = fileB ? (gameitemOrder.get(fileB.toLowerCase()) ?? 9999) : 9999;
+      return orderA - orderB;
+    });
     for (const child of sortedChildren) {
       children.push(convertGroup(child));
     }
 
-    const sortedItems = [...groupData.items].sort((a, b) => a.name.localeCompare(b.name));
+    const sortedItems = [...groupData.items].sort((a, b) => {
+      const fileA = a.item._fileName?.replace(/^gameitems\//, '');
+      const fileB = b.item._fileName?.replace(/^gameitems\//, '');
+      const orderA = fileA ? (gameitemOrder.get(fileA.toLowerCase()) ?? 9999) : 9999;
+      const orderB = fileB ? (gameitemOrder.get(fileB.toLowerCase()) ?? 9999) : 9999;
+      return orderA - orderB;
+    });
     for (const { name, item } of sortedItems) {
       children.push({
         id: `item:${name}`,
@@ -289,22 +317,47 @@ function handleDragStart(e: DragEvent, _id: string, baseNode: BaseTreeNode): voi
   e.dataTransfer!.effectAllowed = 'move';
 }
 
-function handleDrop(e: DragEvent, _targetId: string, baseNode: BaseTreeNode): void {
+async function handleDrop(e: DragEvent, _targetId: string, baseNode: BaseTreeNode, position: DropPosition): Promise<void> {
   const targetNode = baseNode as TreeNode;
   if (state.isTableLocked) return;
-  if (targetNode.nodeType !== 'group' && targetNode.nodeType !== 'root') return;
 
   const itemName = e.dataTransfer!.getData('application/x-layer-item');
   const groupName = e.dataTransfer!.getData('application/x-layer-group');
 
-  const targetGroupName = targetNode.nodeType === 'root' ? null : targetNode.groupName!;
+  if (position === 'inside') {
+    // Nest inside a folder (original behavior)
+    if (targetNode.nodeType !== 'group') return;
+    const targetGroupName = targetNode.groupName!;
 
-  if (itemName) {
-    reassignItemToGroup(itemName, targetGroupName);
-  } else if (groupName) {
-    if (groupName !== targetGroupName && !isDescendantGroup(targetGroupName, groupName)) {
-      reassignGroupToGroup(groupName, targetGroupName);
+    if (itemName) {
+      await reassignItemToGroup(itemName, targetGroupName);
+    } else if (groupName) {
+      if (groupName !== targetGroupName && !isDescendantGroup(targetGroupName, groupName)) {
+        await reassignGroupToGroup(groupName, targetGroupName);
+      }
     }
+  } else {
+    // Reorder: before or after the target
+    const draggedName = groupName || itemName;
+    if (!draggedName) return;
+    const targetName = targetNode.groupName || targetNode.itemName;
+    if (!targetName || draggedName === targetName) return;
+
+    // If dragged item is in a different parent group than the target, reassign it first
+    const targetParentGroup = targetNode.group?.part_group_name || targetNode.item?.part_group_name || null;
+    const draggedItem = getItem(draggedName);
+    const draggedGroup = getPartGroup(draggedName);
+    const draggedParentGroup = draggedGroup?.part_group_name || draggedItem?.part_group_name || null;
+
+    if (draggedParentGroup !== targetParentGroup) {
+      if (groupName) {
+        await reassignGroupToGroup(groupName, targetParentGroup ?? null);
+      } else if (itemName) {
+        await reassignItemToGroup(itemName, targetParentGroup ?? null);
+      }
+    }
+
+    await reorderInGameitems(draggedName, targetName, position);
   }
 }
 
@@ -387,6 +440,51 @@ async function reassignItemToGroup(itemName: string, groupName: string | null): 
   if (groupName && treeControl) {
     treeControl.expandedIds.add(`group:${groupName}`);
   }
+  updateLayersList();
+}
+
+async function reorderInGameitems(draggedName: string, targetName: string, position: DropPosition): Promise<void> {
+  // Get _fileName from the item/group objects
+  const getFileName = (name: string): string | null => {
+    const item = getItem(name);
+    if (item?._fileName) {
+      // _fileName includes path like "gameitems/PartGroup.Main.json", we need just the base
+      const base = item._fileName.replace(/^gameitems\//, '');
+      return base;
+    }
+    const group = getPartGroup(name);
+    if (group?._fileName) {
+      return group._fileName.replace(/^gameitems\//, '');
+    }
+    return null;
+  };
+
+  const draggedFile = getFileName(draggedName);
+  const targetFile = getFileName(targetName);
+
+  if (!draggedFile || !targetFile) return;
+
+  const fromIdx = state.gameitems.findIndex((gi: { file_name: string }) => gi.file_name === draggedFile);
+  const toIdx = state.gameitems.findIndex((gi: { file_name: string }) => gi.file_name === targetFile);
+
+  if (fromIdx === -1 || toIdx === -1 || fromIdx === toIdx) return;
+
+  // Remove dragged item
+  const [entry] = state.gameitems.splice(fromIdx, 1);
+
+  // Recalculate target index after removal
+  let insertIdx = state.gameitems.findIndex((gi: { file_name: string }) => gi.file_name === targetFile);
+  if (insertIdx === -1) return;
+  if (position === 'after') insertIdx++;
+
+  state.gameitems.splice(insertIdx, 0, entry);
+
+  // Save gameitems.json
+  await window.vpxEditor.writeFile(
+    `${state.extractedDir}/gameitems.json`,
+    JSON.stringify(state.gameitems, null, 2)
+  );
+
   updateLayersList();
 }
 

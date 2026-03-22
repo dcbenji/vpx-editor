@@ -11,13 +11,15 @@ export interface TreeNode {
   children?: TreeNode[];
 }
 
+export type DropPosition = 'before' | 'inside' | 'after';
+
 export interface TreeControlOptions {
   onSelect?: (id: string, node: TreeNode) => void;
   onToggleExpand?: (id: string, expanded: boolean) => void;
   onToggleCheck?: (id: string, node: TreeNode) => void;
   onContextMenu?: (e: MouseEvent, id: string, node: TreeNode) => void;
   onDragStart?: ((e: DragEvent, id: string, node: TreeNode) => void) | null;
-  onDrop?: ((e: DragEvent, id: string, node: TreeNode) => void) | null;
+  onDrop?: ((e: DragEvent, id: string, node: TreeNode, position: DropPosition) => void) | null;
 }
 
 export class TreeControl {
@@ -179,7 +181,7 @@ export class TreeControl {
       this.options.onContextMenu(e, node.id, node);
     });
 
-    // Drag & drop
+    // Drag & drop with 3-zone detection
     if (this.options.onDragStart) {
       row.draggable = true;
       row.addEventListener('dragstart', (e: DragEvent) => {
@@ -190,15 +192,21 @@ export class TreeControl {
     if (this.options.onDrop) {
       row.addEventListener('dragover', (e: DragEvent) => {
         e.preventDefault();
-        row.classList.add('drag-over');
+        const pos = this.getDropPosition(e, row, isFolder);
+        row.classList.remove('drop-before', 'drop-inside', 'drop-after');
+        row.classList.add(`drop-${pos}`);
       });
-      row.addEventListener('dragleave', () => {
-        row.classList.remove('drag-over');
+      row.addEventListener('dragleave', (e: DragEvent) => {
+        // Only clear if actually leaving the row (not entering a child)
+        if (!row.contains(e.relatedTarget as Node)) {
+          row.classList.remove('drop-before', 'drop-inside', 'drop-after');
+        }
       });
       row.addEventListener('drop', (e: DragEvent) => {
         e.preventDefault();
-        row.classList.remove('drag-over');
-        this.options.onDrop!(e, node.id, node);
+        const pos = this.getDropPosition(e, row, isFolder);
+        row.classList.remove('drop-before', 'drop-inside', 'drop-after');
+        this.options.onDrop!(e, node.id, node, pos);
       });
     }
 
@@ -208,6 +216,17 @@ export class TreeControl {
     if (isFolder && isExpanded && node.children) {
       this.renderNodes(node.children, parent, depth + 1);
     }
+  }
+
+  private getDropPosition(e: DragEvent, row: HTMLElement, isFolder: boolean): DropPosition {
+    const rect = row.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const height = rect.height;
+    const threshold = height * 0.25;
+
+    if (y < threshold) return 'before';
+    if (y > height - threshold) return 'after';
+    return isFolder ? 'inside' : (y < height / 2 ? 'before' : 'after');
   }
 
   private folderClosedIcon(): string {
