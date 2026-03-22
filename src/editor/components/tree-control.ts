@@ -91,71 +91,81 @@ export class TreeControl {
     const isExpanded = this.expandedIds.has(node.id);
     const hasChildren = node.children && node.children.length > 0;
     const isSelected = this.selectedId === node.id;
+    const isFolder = hasChildren || (node.children !== undefined);
 
     const row = document.createElement('div');
-    row.className = `tree-row${isSelected ? ' selected' : ''}`;
+    row.className = 'layer-row';
+    if (isSelected) row.classList.add('selected');
+    if (isFolder) row.classList.add('folder');
     row.dataset.id = node.id;
-    // Indentation via padding
-    row.style.paddingLeft = `${12 + depth * 16}px`;
+    row.style.paddingLeft = `${12 + depth * 20}px`;
 
-    let html = '';
-
-    // Toggle chevron (for nodes with children)
-    html += `<span class="tree-branch">`;
-    if (hasChildren) {
-      html += `<span class="tree-toggle">${this.chevronIcon(isExpanded)}</span>`;
+    // Icon — folders get open/closed folder icon, items get their own icon
+    if (isFolder) {
+      const folderIcon = document.createElement('span');
+      folderIcon.className = `layer-icon-wrap layer-folder-icon${isExpanded ? ' expanded' : ''}`;
+      folderIcon.innerHTML = isExpanded ? this.folderOpenIcon() : this.folderClosedIcon();
+      row.appendChild(folderIcon);
+    } else if (node.icon) {
+      const iconSpan = document.createElement('span');
+      iconSpan.className = 'layer-icon-wrap';
+      iconSpan.innerHTML = node.icon;
+      row.appendChild(iconSpan);
     } else {
-      html += `<span class="tree-toggle-spacer"></span>`;
-    }
-    html += `</span>`;
-
-    // Icon
-    if (node.icon) {
-      html += `<span class="tree-icon">${node.icon}</span>`;
+      // Spacer for items without icons to keep alignment
+      const spacer = document.createElement('span');
+      spacer.className = 'layer-icon-wrap';
+      row.appendChild(spacer);
     }
 
     // Label
-    html += `<span class="tree-label">${node.label}</span>`;
+    const label = document.createElement('span');
+    label.className = 'layer-label';
+    label.textContent = node.label;
+    row.appendChild(label);
 
-    // Suffix
+    // Suffix (item count badge)
     if (node.suffix) {
-      html += `<span class="tree-suffix">${node.suffix}</span>`;
+      const suffix = document.createElement('span');
+      suffix.className = 'layer-badge';
+      suffix.textContent = node.suffix;
+      row.appendChild(suffix);
     }
 
-    // Visibility eye icon (replaces checkbox)
+    // Visibility eye icon
     if (node.checkState !== undefined) {
-      const visClass = node.checkState === 'unchecked' ? ' visibility-off' : node.checkState === 'mixed' ? ' visibility-mixed' : '';
-      html += `<span class="tree-checkbox${visClass}">${this.eyeIcon(node.checkState)}</span>`;
+      const eye = document.createElement('span');
+      eye.className = 'layer-eye';
+      if (node.checkState === 'unchecked') eye.classList.add('hidden-state');
+      if (node.checkState === 'mixed') eye.classList.add('mixed-state');
+      eye.innerHTML = this.eyeIcon(node.checkState);
+      row.appendChild(eye);
+
+      eye.addEventListener('click', (e: Event) => {
+        e.stopPropagation();
+        this.options.onToggleCheck(node.id, node);
+      });
     }
 
-    row.innerHTML = html;
-
-    // Toggle expand
-    if (hasChildren) {
-      row.querySelector('.tree-toggle')?.addEventListener('click', (e: Event) => {
+    // Toggle expand on folder icon click
+    if (isFolder) {
+      const folderIcon = row.querySelector('.layer-folder-icon');
+      folderIcon?.addEventListener('click', (e: Event) => {
         e.stopPropagation();
         this.setExpanded(node.id, !isExpanded);
         this.options.onToggleExpand(node.id, !isExpanded);
       });
     }
 
-    // Visibility toggle
-    if (node.checkState !== undefined) {
-      row.querySelector('.tree-checkbox')?.addEventListener('click', (e: Event) => {
-        e.stopPropagation();
-        this.options.onToggleCheck(node.id, node);
-      });
-    }
-
-    // Select
+    // Select on row click
     row.addEventListener('click', () => {
       this.setSelected(node.id);
       this.options.onSelect(node.id, node);
     });
 
-    // Double-click to expand/collapse
+    // Double-click to expand/collapse folders
     row.addEventListener('dblclick', () => {
-      if (hasChildren) {
+      if (isFolder) {
         this.setExpanded(node.id, !isExpanded);
         this.options.onToggleExpand(node.id, !isExpanded);
       }
@@ -194,41 +204,40 @@ export class TreeControl {
 
     parent.appendChild(row);
 
-    // Render children
-    if (hasChildren && isExpanded) {
-      const childContainer = document.createElement('div');
-      childContainer.className = 'tree-children';
-      parent.appendChild(childContainer);
-
-      this.renderNodes(node.children!, childContainer, depth + 1);
+    // Render children inline (no wrapper div — flat list feel)
+    if (isFolder && isExpanded && node.children) {
+      this.renderNodes(node.children, parent, depth + 1);
     }
   }
 
-  private chevronIcon(expanded: boolean): string {
-    const rotation = expanded ? 'rotate(90deg)' : 'rotate(0deg)';
-    return `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="transform: ${rotation}; transition: transform 150ms ease;">
-      <path d="M5 3L9 7L5 11" stroke="var(--text-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  private folderClosedIcon(): string {
+    return `<svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <path d="M2 5C2 4.44772 2.44772 4 3 4H7L8.5 6H15C15.5523 6 16 6.44772 16 7V13C16 13.5523 15.5523 14 15 14H3C2.44772 14 2 13.5523 2 13V5Z" fill="var(--text-tertiary)" opacity="0.6"/>
+    </svg>`;
+  }
+
+  private folderOpenIcon(): string {
+    return `<svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <path d="M2 5C2 4.44772 2.44772 4 3 4H7L8.5 6H15C15.5523 6 16 6.44772 16 7V8H4.5L2 13V5Z" fill="var(--accent)" opacity="0.7"/>
+      <path d="M2.5 13L4.5 8H16L14 13H2.5Z" fill="var(--accent)" opacity="0.5"/>
     </svg>`;
   }
 
   private eyeIcon(state: CheckState): string {
     if (state === 'checked') {
-      // Visible — solid eye
       return `<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
         <path d="M1 8C1 8 3.5 3 8 3C12.5 3 15 8 15 8C15 8 12.5 13 8 13C3.5 13 1 8 1 8Z" stroke="var(--accent)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
         <circle cx="8" cy="8" r="2" stroke="var(--accent)" stroke-width="1.2"/>
       </svg>`;
     } else if (state === 'mixed') {
-      // Mixed — half eye
       return `<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
         <path d="M1 8C1 8 3.5 3 8 3C12.5 3 15 8 15 8C15 8 12.5 13 8 13C3.5 13 1 8 1 8Z" stroke="var(--text-secondary)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
         <circle cx="8" cy="8" r="2" stroke="var(--text-secondary)" stroke-width="1.2"/>
       </svg>`;
     }
-    // Unchecked — eye with slash (hidden)
     return `<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <path d="M1 8C1 8 3.5 3 8 3C12.5 3 15 8 15 8C15 8 12.5 13 8 13C3.5 13 1 8 1 8Z" stroke="var(--text-secondary)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
-      <line x1="3" y1="3" x2="13" y2="13" stroke="var(--text-secondary)" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+      <path d="M1 8C1 8 3.5 3 8 3C12.5 3 15 8 15 8C15 8 12.5 13 8 13C3.5 13 1 8 1 8Z" stroke="var(--text-tertiary)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+      <line x1="3" y1="3" x2="13" y2="13" stroke="var(--text-tertiary)" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
     </svg>`;
   }
 }

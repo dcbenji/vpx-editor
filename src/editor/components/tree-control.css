@@ -1,165 +1,131 @@
-/* Modern tree control */
+/* Photoshop/Figma-style layers panel */
 
-.tree-row {
+/* --- Row --- */
+.layer-row {
   display: flex;
   align-items: center;
-  padding: 6px 12px;
+  height: 32px;
+  padding-right: 12px;
   cursor: pointer;
-  white-space: nowrap;
   font-size: 12px;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   border-left: 2px solid transparent;
+  gap: 6px;
   transition: background var(--transition-fast, 150ms ease),
               border-color var(--transition-fast, 150ms ease);
-  gap: 6px;
+  user-select: none;
 }
 
-.tree-row:hover {
+.layer-row:hover {
   background: var(--hover-bg);
 }
 
-.tree-row.selected {
+.layer-row.selected {
   background: var(--accent-subtle);
   border-left-color: var(--accent);
 }
 
-.tree-row.selected .tree-label {
-  background: transparent;
-  color: var(--text-primary);
-  font-weight: 700;
-  padding: 0;
-  margin: 0;
-  border-radius: 0;
+.layer-row.selected .layer-label {
+  font-weight: 600;
 }
 
-.tree-row.drag-over {
+.layer-row.drag-over {
   background: var(--accent-subtle);
   outline: 1px dashed var(--accent);
 }
 
-/* Indentation — applied via inline padding-left */
-.tree-indent {
-  display: none; /* Hide old SVG connectors */
+/* --- Folder icon (acts as toggle) --- */
+.layer-folder-icon {
+  cursor: pointer;
 }
 
-/* Branch — hide old SVG connectors */
-.tree-branch {
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-  width: auto;
-  height: auto;
-}
-
-.tree-branch-lines {
-  display: none; /* Hide dotted lines */
-}
-
-/* Toggle — chevron style */
-.tree-toggle {
-  display: inline-flex;
-  width: 16px;
-  height: 16px;
+/* --- Icon --- */
+.layer-icon-wrap {
+  display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  flex-shrink: 0;
-  border-radius: 3px;
-  transition: background var(--transition-fast, 150ms ease);
-}
-
-.tree-toggle:hover {
-  background: var(--hover-bg);
-}
-
-.tree-toggle svg {
-  transition: transform var(--transition-fast, 150ms ease);
-}
-
-.tree-toggle-spacer {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-}
-
-/* Visibility toggle — eye icon style */
-.tree-checkbox {
-  display: inline-flex;
-  width: 20px;
-  height: 20px;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  flex-shrink: 0;
-  margin-left: auto;
-  border-radius: 4px;
-  opacity: 0;
-  transition: opacity var(--transition-fast, 150ms ease),
-              background var(--transition-fast, 150ms ease);
-}
-
-.tree-row:hover .tree-checkbox,
-.tree-row.selected .tree-checkbox {
-  opacity: 1;
-}
-
-/* Always show when unchecked (hidden) or mixed */
-.tree-checkbox.visibility-off,
-.tree-checkbox.visibility-mixed {
-  opacity: 0.6;
-}
-
-.tree-row:hover .tree-checkbox.visibility-off,
-.tree-row.selected .tree-checkbox.visibility-off,
-.tree-row:hover .tree-checkbox.visibility-mixed,
-.tree-row.selected .tree-checkbox.visibility-mixed {
-  opacity: 1;
-}
-
-.tree-checkbox:hover {
-  background: var(--hover-bg);
-}
-
-.tree-checkbox-spacer {
-  display: none;
-}
-
-/* Icon */
-.tree-icon {
-  display: inline-flex;
   width: 18px;
   height: 18px;
-  align-items: center;
-  justify-content: center;
   flex-shrink: 0;
 }
 
-.tree-icon img {
+.layer-icon-wrap img {
   width: 16px;
   height: 16px;
 }
 
-/* Label */
-.tree-label {
-  font-size: 12px;
-  padding: 0;
+/* --- Label --- */
+.layer-label {
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
-/* Suffix (item count, etc.) */
-.tree-suffix {
+/* --- Badge (item count) --- */
+.layer-badge {
   font-size: 10px;
   color: var(--text-tertiary);
   background: var(--hover-bg);
   padding: 1px 6px;
   border-radius: 8px;
-  margin-left: 4px;
+  flex-shrink: 0;
 }
 
-.tree-children {
-  display: block;
+/* --- Eye visibility toggle --- */
+.layer-eye {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  margin-left: auto;
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--transition-fast, 150ms ease),
+              background var(--transition-fast, 150ms ease);
 }
+
+/* Show eye on row hover or selection */
+.layer-row:hover .layer-eye,
+.layer-row.selected .layer-eye {
+  opacity: 1;
+}
+
+/* Always show eye when item is hidden or mixed */
+.layer-eye.hidden-state,
+.layer-eye.mixed-state {
+  opacity: 0.5;
+}
+
+.layer-row:hover .layer-eye.hidden-state,
+.layer-row.selected .layer-eye.hidden-state,
+.layer-row:hover .layer-eye.mixed-state,
+.layer-row.selected .layer-eye.mixed-state {
+  opacity: 1;
+}
+
+.layer-eye:hover {
+  background: var(--hover-bg);
+}
+
+/* --- Folder row accent --- */
+.layer-row.folder {
+  color: var(--text-primary);
+}
+
+.layer-row.folder .layer-label {
+  font-weight: 600;
+}
+
+.layer-row.folder.selected .layer-label {
+  font-weight: 700;
+}
+
+/* --- Legacy compat: keep old class names from breaking --- */
+.tree-row { display: none; }
+.tree-children { display: block; }

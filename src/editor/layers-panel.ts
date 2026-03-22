@@ -168,7 +168,7 @@ function buildTreeData(): TreeNode[] {
     return {
       id: `group:${groupData.name}`,
       label: groupData.name,
-      icon: '<img src="icons/group.svg" width="16" height="16" class="layer-icon">',
+      icon: undefined,
       checkState: getCheckState(allItems),
       showConnector: true,
       children: children.length > 0 ? children : undefined,
@@ -179,38 +179,21 @@ function buildTreeData(): TreeNode[] {
     };
   }
 
-  const allItems: ItemEntry[] = [];
-  for (const [key, item] of Object.entries(state.items)) {
-    if (item._type === 'PartGroup') continue;
-    const displayName = item.name || key;
-    allItems.push({ name: displayName, item });
-  }
-
-  const rootNode: TreeNode = {
-    id: '_root',
-    label: 'Layers',
-    icon: '<img src="icons/layers.svg" width="16" height="16" class="layer-icon">',
-    checkState: getCheckState(allItems),
-    nodeType: 'root',
-    allItems,
-    children: rootChildren.map(child => {
-      if ('isItem' in child) {
-        return {
-          id: `item:${child.name}`,
-          label: child.name,
-          icon: '<img src="icons/element.svg" width="16" height="16" class="layer-icon">',
-          checkState: child.item.editor_layer_visibility === false ? 'unchecked' : 'checked',
-          showConnector: true,
-          nodeType: 'item' as const,
-          itemName: child.name,
-          item: child.item,
-        };
-      }
-      return convertGroup(child);
-    }),
-  };
-
-  return [rootNode];
+  // Return groups and items directly — no root wrapper node (Photoshop/Figma style)
+  return rootChildren.map(child => {
+    if ('isItem' in child) {
+      return {
+        id: `item:${child.name}`,
+        label: child.name,
+        icon: '<img src="icons/element.svg" width="16" height="16" class="layer-icon">',
+        checkState: child.item.editor_layer_visibility === false ? 'unchecked' : 'checked',
+        nodeType: 'item' as const,
+        itemName: child.name,
+        item: child.item,
+      };
+    }
+    return convertGroup(child);
+  });
 }
 
 function getAllItemsInGroup(groupData: GroupData): ItemEntry[] {
@@ -233,7 +216,6 @@ export function updateLayersList(): void {
       onDragStart: handleDragStart,
       onDrop: handleDrop,
     });
-    treeControl.expandedIds.add('_root');
   }
 
   const treeData = buildTreeData();
