@@ -137,21 +137,29 @@
 }
 
 #toolbar .tool-btn img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
 }
 
 #toolbar .tool-btn.active img {
+  /* Active state icon styling handled by filter */
 }
 
 .tool-btn.icon-btn {
   width: 30px;
   height: 30px;
   padding: 3px;
+  overflow: hidden;
 }
 
 .tool-btn.icon-btn img,
 .tool-btn.icon-btn svg {
   width: 20px;
   height: 20px;
+  max-width: 20px;
+  max-height: 20px;
+  object-fit: contain;
 }
 
 .tool-btn svg {
